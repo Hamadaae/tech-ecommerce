@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const reviewSchema = new mongoose.Schema({
     rating : { type : Number, required : true },
@@ -62,4 +62,4 @@ productSchema.virtual('Average Rating').get(function(){
     return Number((sum / this.reviews.length).toFixed(2));
 })
 
-module.exports = mongoose.model('Product', productSchema);
+export default mongoose.model('Product', productSchema);

@@ -1,12 +1,17 @@
-const Product = require('../models/Product');
+import Product from '../models/Product.js';
 
 export const getProducts = async (req,res) => {
     try{
-        const products = await Product.find();
-        res.json(products);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message : error.message || 'Internal Server Error'})
+        const { category } = req.query;
+        const filter = {}
+        if(category) {
+            filter.category = category;
+        }
+        const products = await Product.find(filter).lean()
+        return res.json(products);
+    }catch(error) {
+        console.error('getProducts error' , error)
+        return res.status(500).json({ message : error.message || 'Internal Server Error'})
     }
 }
 
@@ -18,7 +23,7 @@ export const getProductById = async (req,res) => {
         }
         res.json(product);
     } catch (error) {
-        console.log(error);
+        console.log('getProductById error',error);
         res.status(500).json({ message : error.message || 'Internal Server Error'})
     }
 }
@@ -61,5 +66,31 @@ export const deleteProduct = async (req,res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message : error.message || 'Internal Server Error'})
+    }
+}
+
+
+export const getCategories = async (req,res) => {
+    try{
+        const categories = await Product.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          count: 1,
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+        return res.json(categories);
+    }catch(error){
+        console.error('getCategories error',error.message);
+        return res.status(500).json({ message : error.message || 'Internal Server Error'})
     }
 }
