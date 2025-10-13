@@ -1,0 +1,78 @@
+{
+  "externalId": 161,
+  "__v": 0,
+  "availabilityStatus": "In Stock",
+  "brand": "Samsung",
+  "createdAt": {
+    "$date": "2025-10-13T13:06:38.308Z"
+  },
+  "description": "The Samsung Galaxy Tab in White is a sleek and versatile Android tablet. With a vibrant display, long-lasting battery, and a range of features, it offers a great user experience for various tasks.",
+  "dimensions": {
+    "width": 15.05,
+    "height": 5.37,
+    "depth": 11.82
+  },
+  "discountPercentage": 18.2,
+  "images": [
+    "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/1.webp",
+    "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/2.webp",
+    "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/3.webp",
+    "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/4.webp"
+  ],
+  "meta": {
+    "createdAt": {
+      "$date": "2025-04-30T09:41:02.054Z"
+    },
+    "updatedAt": {
+      "$date": "2025-04-30T09:41:02.054Z"
+    },
+    "barcode": "3477850755498",
+    "qrCode": "https://cdn.dummyjson.com/public/qr-code.png"
+  },
+  "minimumOrderQuantity": 5,
+  "price": 349.99,
+  "rating": 3.72,
+  "returnPolicy": "7 days return policy",
+  "reviews": [
+    {
+      "rating": 1,
+      "comment": "Waste of money!",
+      "date": {
+        "$date": "2025-04-30T09:41:02.054Z"
+      },
+      "reviewerName": "Max Russell",
+      "reviewerEmail": "max.russell@x.dummyjson.com"
+    },
+    {
+      "rating": 2,
+      "comment": "Poor quality!",
+      "date": {
+        "$date": "2025-04-30T09:41:02.054Z"
+      },
+      "reviewerName": "Lincoln Kelly",
+      "reviewerEmail": "lincoln.kelly@x.dummyjson.com"
+    },
+    {
+      "rating": 4,
+      "comment": "Very satisfied!",
+      "date": {
+        "$date": "2025-04-30T09:41:02.054Z"
+      },
+      "reviewerName": "Elena Long",
+      "reviewerEmail": "elena.long@x.dummyjson.com"
+    }
+  ],
+  "shippingInformation": "Ships overnight",
+  "sku": "TAB-SAM-SAM-161",
+  "stock": 92,
+  "tags": [
+    "electronics",
+    "tablets"
+  ],
+  "thumbnail": "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/thumbnail.webp",
+  "title": "Samsung Galaxy Tab White",
+  "updatedAt": {
+    "$date": "2025-10-13T13:06:38.308Z"
+  },
+  "weight": 5
+}
