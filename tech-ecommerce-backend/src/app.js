@@ -3,6 +3,7 @@ import cors from 'cors';
 import productRoutes from './routes/product.routes.js';
 import connectDB from './config/db.js';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes.js';
 
 dotenv.config();
 const app = express();
@@ -15,9 +16,13 @@ app.get('/', (req, res) => {
 
 app.use('/api/products', productRoutes);
 
+app.use('/api/auth', authRoutes);
+
 app.use((err, req, res, next) => {
     console.log(err)
     res.status(err.status || 500).json({ message : err.message || 'Internal Server Error'})
 })
+
+
 
 export default app
