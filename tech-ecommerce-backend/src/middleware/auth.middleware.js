@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { verifyToken } from '../utils/helpers';
 
 export default function authMiddleware(req, res, next) {
   try {
@@ -13,7 +14,7 @@ export default function authMiddleware(req, res, next) {
       return res.status(401).json({ message: 'No Token Provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = verifyToken(token);
     req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (error) {
