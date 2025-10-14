@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { verifyToken } from '../utils/helpers';
+import { verifyToken } from '../utils/helpers.js';
 
 export default function authMiddleware(req, res, next) {
   try {
@@ -11,14 +11,23 @@ export default function authMiddleware(req, res, next) {
       : null;
 
     if (!token) {
-      return res.status(401).json({ message: 'No Token Provided' });
+      const err = new Error('No Token provided')
+      err.statusCode = 401
+      return next(err)
     }
 
-    const decoded = verifyToken(token);
-    req.user = { id: decoded.id, role: decoded.role };
+    let decoded 
+    try{
+      decoded = verifyToken(token);
+    } catch(jwtError){
+        jwtError.statusCode = 401
+        return next(jwtError)
+    }
+
+    req.user = { id : decoded.id, role : decoded.role };
     next();
   } catch (error) {
-    console.error('authMiddleware error:', error);
-    res.status(401).json({ message: error.message || 'Invalid Token' });
+      error.statusCode = error.statusCode || 401
+    next(error);
   }
 }
