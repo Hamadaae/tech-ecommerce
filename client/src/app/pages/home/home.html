@@ -1,13 +1,111 @@
-<div class="home-root bg-red-500 min-h-screen">
-  <header>
-    <app-hero></app-hero>
-  </header>
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <app-hero></app-hero>
 
-  <main>
-    <section class="py-16 px-6 sm:px-10" role="region" aria-labelledby="featured-products">
-      <h2 id="featured-products" class="text-3xl font-bold mb-8 md:mb-12 text-center">Featured Products</h2>
-      <div class="grid gap-4 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Category Navigation -->
+    <nav class="py-8">
+      <ul class="flex flex-wrap justify-center gap-4">
+        <li>
+          <a href="/category/laptops" class="flex flex-col items-center p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
+            <span class="text-3xl mb-2">💻</span>
+            <span class="font-medium">Laptops</span>
+          </a>
+        </li>
+        <li>
+          <a href="/category/tablets" class="flex flex-col items-center p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
+            <span class="text-3xl mb-2">📱</span>
+            <span class="font-medium">Tablets</span>
+          </a>
+        </li>
+        <li>
+          <a href="/category/smartphones" class="flex flex-col items-center p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
+            <span class="text-3xl mb-2">📱</span>
+            <span class="font-medium">Smartphones</span>
+          </a>
+        </li>
+        <li>
+          <a href="/category/accessories" class="flex flex-col items-center p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
+            <span class="text-3xl mb-2">🎧</span>
+            <span class="font-medium">Accessories</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Featured Products -->
+    <section class="py-12" role="region" aria-labelledby="featured-products">
+      <div class="flex items-center justify-between mb-8">
+        <h2 id="featured-products" class="text-2xl font-bold text-gray-900">Featured Products</h2>
+        <a href="/products" class="text-blue-600 hover:text-blue-800 font-medium">View All</a>
+      </div>
+      <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <app-product-card *ngFor="let p of products" [product]="p"></app-product-card>
+      </div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section class="py-12" role="region" aria-labelledby="new-arrivals">
+      <div class="flex items-center justify-between mb-8">
+        <h2 id="new-arrivals" class="text-2xl font-bold text-gray-900">New Arrivals</h2>
+        <a href="/new-arrivals" class="text-blue-600 hover:text-blue-800 font-medium">View All</a>
+      </div>
+      <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <app-product-card *ngFor="let p of newArrivals" [product]="p"></app-product-card>
+      </div>
+    </section>
+
+    <!-- Special Offers -->
+    <section class="py-12" role="region" aria-labelledby="special-offers">
+      <h2 id="special-offers" class="text-2xl font-bold text-gray-900 mb-8">Special Offers</h2>
+      <div class="grid gap-6 grid-cols-1 md:grid-cols-2">
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-6 text-white">
+          <h3 class="text-xl font-bold mb-2">Student Discount</h3>
+          <p class="mb-4">Get 10% off on laptops with your student ID</p>
+          <button class="bg-white text-indigo-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+            Learn More
+          </button>
+        </div>
+        <div class="bg-gradient-to-r from-pink-500 to-rose-600 rounded-2xl p-6 text-white">
+          <h3 class="text-xl font-bold mb-2">Bundle & Save</h3>
+          <p class="mb-4">Save up to 20% when buying smartphone + accessories</p>
+          <button class="bg-white text-rose-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+            Shop Bundles
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brand Showcase -->
+    <section class="py-12 border-t" role="region" aria-labelledby="our-brands">
+      <h2 id="our-brands" class="text-2xl font-bold text-gray-900 mb-8 text-center">Top Brands</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+        <img src="assets/brands/apple.svg" alt="Apple" class="h-12 opacity-70 hover:opacity-100 transition-opacity">
+        <img src="assets/brands/samsung.svg" alt="Samsung" class="h-12 opacity-70 hover:opacity-100 transition-opacity">
+        <img src="assets/brands/dell.svg" alt="Dell" class="h-12 opacity-70 hover:opacity-100 transition-opacity">
+        <img src="assets/brands/lenovo.svg" alt="Lenovo" class="h-12 opacity-70 hover:opacity-100 transition-opacity">
+      </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="py-12 border-t" role="region" aria-labelledby="why-us">
+      <h2 id="why-us" class="text-2xl font-bold text-gray-900 mb-12 text-center">Why Choose Us</h2>
+      <div class="grid gap-8 grid-cols-1 md:grid-cols-3">
+        <div class="text-center">
+          <span class="text-4xl mb-4 block">🚚</span>
+          <h3 class="text-lg font-semibold mb-2">Free Shipping</h3>
+          <p class="text-gray-600">On orders over $500</p>
+        </div>
+        <div class="text-center">
+          <span class="text-4xl mb-4 block">🔄</span>
+          <h3 class="text-lg font-semibold mb-2">Easy Returns</h3>
+          <p class="text-gray-600">30-day return policy</p>
+        </div>
+        <div class="text-center">
+          <span class="text-4xl mb-4 block">🔒</span>
+          <h3 class="text-lg font-semibold mb-2">Secure Payment</h3>
+          <p class="text-gray-600">100% secure checkout</p>
+        </div>
       </div>
     </section>
   </main>
