@@ -1,0 +1,30 @@
+<div class="min-h-screen flex items-center justify-center bg-[#14213D]">
+  <div class="bg-[#E5E5E5] p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-6 text-[#000000]">Login</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label class="block mb-1 text-[#000000]">Email</label>
+        <input formControlName="email" type="email" class="w-full p-2 border rounded" />
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+        <p class="text-red-600 text-sm mt-1">Enter a valid email.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-[#000000]">Password</label>
+        <input formControlName="password" type="password" class="w-full p-2 border rounded" />
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <p class="text-red-600 text-sm mt-1">Password is required.</p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-[#FCA311] hover:opacity-90 text-white py-2 rounded font-semibold"
+      >
+        Login
+      </button>
+    </form>
+  </div>
+</div>
