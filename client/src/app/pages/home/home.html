@@ -1,0 +1,14 @@
+<div class="home-root bg-red-500 min-h-screen">
+  <header>
+    <app-hero></app-hero>
+  </header>
+
+  <main>
+    <section class="py-16 px-6 sm:px-10" role="region" aria-labelledby="featured-products">
+      <h2 id="featured-products" class="text-3xl font-bold mb-8 md:mb-12 text-center">Featured Products</h2>
+      <div class="grid gap-4 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <app-product-card *ngFor="let p of products" [product]="p"></app-product-card>
+      </div>
+    </section>
+  </main>
+</div>
