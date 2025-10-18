@@ -23,16 +23,36 @@
     <span class="text-xl font-bold tracking-tight">TechZone</span>
   </a>
 
-  <!-- Search Bar (hidden on small screens) -->
+  <!-- Search Bar -->
   <div class="hidden md:flex items-center flex-1 max-w-xl mx-8">
-    <div class="relative w-full">
+    <form (ngSubmit)="onSearch()" class="relative w-full">
       <input
         type="text"
+        [(ngModel)]="searchQuery"
+        name="search"
         placeholder="Search products..."
         class="w-full py-2 pl-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
-      <mat-icon class="absolute right-3 top-2 text-gray-400">search</mat-icon>
-    </div>
+      <button type="submit" class="absolute right-3 top-2 text-gray-400">
+        <mat-icon>search</mat-icon>
+      </button>
+    </form>
+  </div>
+
+  <!-- Mobile Search Bar (shown when toggled) -->
+  <div class="md:hidden absolute left-0 right-0 top-full bg-white p-4 border-b border-gray-200" [class.hidden]="!showMobileSearch">
+    <form (ngSubmit)="onSearch()" class="relative w-full">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        name="search"
+        placeholder="Search products..."
+        class="w-full py-2 pl-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      />
+      <button type="submit" class="absolute right-3 top-2 text-gray-400">
+        <mat-icon>search</mat-icon>
+      </button>
+    </form>
   </div>
 
   <!-- Navigation Links and Actions -->
@@ -42,19 +62,12 @@
         <mat-icon>category</mat-icon>
         <span class="hidden sm:inline">Products</span>
       </a>
-      <a routerLink="/orders" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-        <mat-icon>receipt_long</mat-icon>
-        <span class="hidden sm:inline">Orders</span>
-      </a>
     </nav>
 
-    <!-- Search Icon (visible only on small screens) -->
-    <button mat-icon-button class="md:hidden">
-      <mat-icon class="text-gray-700">search</mat-icon>
-    </button>
+    
 
     <!-- Cart -->
-    <div class="relative cursor-pointer">
+    <a routerLink="/cart" class="relative">
       <mat-icon class="text-gray-700">shopping_cart</mat-icon>
       <span
         *ngIf="cartItemCount > 0"
@@ -62,29 +75,39 @@
       >
         {{ cartItemCount }}
       </span>
-    </div>
+    </a>
 
-    <ng-container *ngIf="!isLoggedIn; else loggedInLinksRight">
-      <a routerLink="/login" class="ml-4 hover:text-blue-600 transition-colors">Login</a>
-      <a routerLink="/register" class="ml-4 hover:text-blue-600 transition-colors">Register</a>
+    <!-- Auth Section -->
+    <ng-container *ngIf="!isLoggedIn; else userMenu">
+      <a routerLink="/login" class="hover:text-blue-600 transition-colors">Login</a>
+      <a routerLink="/register" class="hover:text-blue-600 transition-colors">Register</a>
     </ng-container>
 
-    <ng-template #loggedInLinksRight>
+    <ng-template #userMenu>
       <button mat-icon-button [matMenuTriggerFor]="menu">
         <img src="assets/profile.jpg" alt="Profile" class="w-8 h-8 rounded-full object-cover" />
       </button>
     </ng-template>
   </div>
 
-  <!-- Shared account menu (declared at top level so multiple triggers can reference it) -->
+  <!-- User dropdown menu -->
   <mat-menu #menu="matMenu">
     <button mat-menu-item routerLink="/profile">
       <mat-icon>person</mat-icon>
       <span>Profile</span>
     </button>
+    <button mat-menu-item routerLink="/orders">
+      <mat-icon>receipt_long</mat-icon>
+      <span>Orders</span>
+    </button>
+    <button mat-menu-item routerLink="/wishlist">
+      <mat-icon>favorite</mat-icon>
+      <span>Wishlist</span>
+    </button>
+    <mat-divider></mat-divider>
     <button mat-menu-item (click)="logout()">
       <mat-icon>logout</mat-icon>
-      <span>Logout</span>
+      <span>Sign Out</span>
     </button>
   </mat-menu>
 </mat-toolbar>
