@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule , RouterModule],
   templateUrl: './register.html'
 })
 export class Register {
@@ -19,8 +20,6 @@ export class Register {
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatch });
   }
-
-  // 🔐 Custom Password Match Validator
   passwordMatch(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
@@ -30,7 +29,6 @@ export class Register {
   onSubmit() {
     if (this.registerForm.valid) {
       console.log(this.registerForm.value);
-      // TODO: Call register API
     }
   }
 }
