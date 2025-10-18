@@ -1,37 +1,8 @@
 import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-
-/**
- * Adjust product stock quantities.
- * - Decrease stock when an order is placed.
- * - Increase stock when an order is canceled or deleted.
- */
-async function adjustStock(items, increment = false) {
-  for (const item of items) {
-    const op = increment
-      ? { $inc: { stock: item.quantity } }
-      : { $inc: { stock: -item.quantity } };
-
-    if (!increment) {
-      // Ensure stock availability before decrement
-      const updated = await Product.findOneAndUpdate(
-        { _id: item.product, stock: { $gte: item.quantity } },
-        op,
-        { new: true }
-      );
-      if (!updated) {
-        const err = new Error(`Insufficient stock for product ${item.product}`);
-        err.statusCode = 400;
-        throw err;
-      }
-    } else {
-      // Restore stock on rollback or deletion
-      await Product.updateOne({ _id: item.product }, op);
-    }
-  }
-}
-
+import { createPaymentIntent } from "../services/payment.js";
+import { adjustStock } from "../utils/helpers.js";
 /**
  * Create a new order
  */
@@ -149,28 +120,31 @@ export const createOrder = async (req, res, next) => {
       paymentStatus: "pending",
     };
 
-    // Handle stock reservation
     let stockReserved = false;
-    if (paymentMethod.toLowerCase() === "cash_on_delivery") {
-      await adjustStock(newOrderItems, null, false);
+    if(paymentMethod.toLowerCase() === "cash_on_delivery") {
+      await adjustStock(newOrderItems, false);
       stockReserved = true;
-    } else if (paymentMethod === "stripe" && isPaid) {
-      await adjustStock(newOrderItems, null, false);
-      stockReserved = true;
-      orderDoc.paymentStatus = "paid";
-      orderDoc.isPaid = true;
-      orderDoc.paidAt = new Date();
     }
 
     orderDoc.stockReserved = stockReserved;
 
-    // Save order
-    const createdOrder = await Order.create(orderDoc);
+    const createdOrder = await Order.create(orderDoc)
+
+    let clientSecret = null
+
+    if(paymentMethod.toLowerCase() === 'stripe'){
+      const paymentIntent = await createPaymentIntent(createdOrder)
+      createdOrder.stripePaymentIntentId = paymentIntent.id
+      await createdOrder.save()
+      clientSecret = paymentIntent.clientSecret
+    }
+
     res.status(201).json({
-      success: true,
       message: "Order created successfully",
       order: createdOrder,
+      clientSecret
     });
+
   } catch (error) {
     next(error);
   }
@@ -328,7 +302,7 @@ export const updateOrderToPaid = async (req, res, next) => {
     if (order.isPaid) return res.json(order);
 
     if (!order.stockReserved) {
-      await adjustStock(order.orderItems, null, false);
+      await adjustStock(order.orderItems, false);
       order.stockReserved = true;
     }
 
