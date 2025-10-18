@@ -1,10 +1,16 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+
 import { App } from './app/app';
-import { routes } from './app/app.routes';
+import { productReducer, productFeatureKey } from './app/store/products/product.reducer';
+import { ProductEffects } from './app/store/products/product.effects';
 
 bootstrapApplication(App, {
   providers: [
-    provideRouter(routes)
-  ],
-}).catch((err) => console.error(err));
+    provideHttpClient(),
+    provideStore({ [productFeatureKey]: productReducer }),
+    provideEffects([ProductEffects])
+  ]
+});
