@@ -29,7 +29,7 @@ const productSchema = new mongoose.Schema({
     price : { type : Number},
     discountPercentage : { type : Number},
     rating : { type : Number},
-    stock : { type : Number},
+    stock : { type : Number , required : true , min : 0 , default : 0 },
     tags : [ String ],
     brand : String,
     sku : String,

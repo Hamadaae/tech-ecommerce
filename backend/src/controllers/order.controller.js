@@ -3,27 +3,22 @@ import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
 /**
- * Adjust product stock quantities when orders are created, paid, or deleted.
+ * Adjust product stock quantities.
  * - Decrease stock when an order is placed.
- * - Increase stock (rollback) when an order is canceled or deleted.
- *
- * @param {Array} items - The ordered items with product IDs and quantities.
- * @param {mongoose.ClientSession} session - MongoDB transaction session.
- * @param {boolean} increment - If true, increases stock (restore); else decreases.
+ * - Increase stock when an order is canceled or deleted.
  */
-async function adjustStock(items, session = null, increment = false) {
+async function adjustStock(items, increment = false) {
   for (const item of items) {
-    // Choose increment or decrement operation based on context
     const op = increment
-      ? { $inc: { quantity: item.quantity } }
-      : { $inc: { quantity: -item.quantity } };
+      ? { $inc: { stock: item.quantity } }
+      : { $inc: { stock: -item.quantity } };
 
     if (!increment) {
-      // Ensure product has enough stock before decrementing
+      // Ensure stock availability before decrement
       const updated = await Product.findOneAndUpdate(
-        { _id: item.product, quantity: { $gte: item.quantity } },
+        { _id: item.product, stock: { $gte: item.quantity } },
         op,
-        { session, new: true }
+        { new: true }
       );
       if (!updated) {
         const err = new Error(`Insufficient stock for product ${item.product}`);
@@ -31,107 +26,158 @@ async function adjustStock(items, session = null, increment = false) {
         throw err;
       }
     } else {
-      // Increment back stock on order cancellation/deletion
-      await Product.updateOne({ _id: item.product }, op, { session });
+      // Restore stock on rollback or deletion
+      await Product.updateOne({ _id: item.product }, op);
     }
   }
 }
 
 /**
  * Create a new order
- * - Verifies user authentication
- * - Validates request body
- * - Reserves stock for "cash on delivery" or "paid" Stripe payments
- * - Uses a transaction to ensure atomicity between stock and order creation
  */
 export const createOrder = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    // Require authentication
     if (!req.user || !req.user.id) {
       const err = new Error("Authentication required");
       err.statusCode = 401;
       return next(err);
     }
 
-    // Extract order fields from request body
     const {
       orderItems,
       shippingAddress,
       paymentMethod = "stripe",
-      itemsPrice,
       taxPrice = 0,
       shippingPrice = 0,
-      totalPrice,
       stripePaymentIntentId = null,
       isPaid = false,
     } = req.body;
 
-    // Validate presence of order items
     if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
-      const err = new Error("No order items");
+      const err = new Error("No order items provided");
       err.statusCode = 400;
       return next(err);
     }
 
-    // Prepare base order document
+    // Fetch product details
+    const productIds = orderItems.map((i) => i.product);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    const productMap = new Map();
+    products.forEach((p) => productMap.set(p._id.toString(), p));
+
+    const newOrderItems = orderItems.map((item) => {
+      const pid = item.product?.toString?.();
+      const productDoc = productMap.get(pid);
+
+      if (!productDoc) {
+        const err = new Error(`Product ${pid} not found`);
+        err.statusCode = 404;
+        throw err;
+      }
+
+      const qty = Number(item.quantity || item.qty || 0);
+      if (!qty || qty <= 0) {
+        const err = new Error(`Invalid quantity for product ${pid}`);
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (
+        typeof productDoc.minimumOrderQuantity === "number" &&
+        qty < productDoc.minimumOrderQuantity
+      ) {
+        const err = new Error(
+          `Minimum order quantity for ${productDoc.title} is ${productDoc.minimumOrderQuantity}`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (typeof productDoc.stock === "number" && qty > productDoc.stock) {
+        const err = new Error(
+          `Insufficient stock for ${productDoc.title}. Available: ${productDoc.stock}`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
+
+      const price = Number(productDoc.price || 0);
+      const discountPercentage = Number(productDoc.discountPercentage || 0);
+      const image =
+        Array.isArray(productDoc.images) && productDoc.images.length > 0
+          ? productDoc.images[0]
+          : null;
+
+      const discount = discountPercentage / 100;
+      const subTotal = Math.round(price * qty * (1 - discount) * 100) / 100;
+
+      return {
+        product: productDoc._id,
+        name: productDoc.title,
+        quantity: qty,
+        price,
+        discountPercentage,
+        image,
+        subTotal,
+      };
+    });
+
+    // Calculate order totals
+    const itemsPrice = newOrderItems.reduce(
+      (acc, item) => acc + item.subTotal,
+      0
+    );
+
+    const normalizedShipping = Number(shippingPrice || 0);
+    const normalizedTax = Number(taxPrice || 0);
+    const totalPrice =
+      Math.round((itemsPrice + normalizedShipping + normalizedTax) * 100) / 100;
+
+    // Prepare order document
     const orderDoc = {
       user: req.user.id,
-      orderItems,
+      orderItems: newOrderItems,
       shippingAddress,
       paymentMethod,
       itemsPrice,
-      taxPrice,
-      shippingPrice,
+      shippingPrice: normalizedShipping,
+      taxPrice: normalizedTax,
       totalPrice,
-      stripePaymentIntentId,
       isPaid: false,
+      stripePaymentIntentId,
       paymentStatus: "pending",
     };
 
+    // Handle stock reservation
     let stockReserved = false;
-
-    // --- Handle stock depending on payment method ---
-    if (
-      paymentMethod === "cash_on_delivery" ||
-      paymentMethod === "cash_on_delivery".toLowerCase()
-    ) {
-      // For COD orders → immediately reserve stock
-      await adjustStock(orderItems, session, false);
+    if (paymentMethod.toLowerCase() === "cash_on_delivery") {
+      await adjustStock(newOrderItems, null, false);
       stockReserved = true;
-    } else if (paymentMethod === "stripe") {
-      // For Stripe orders → reserve stock only if payment succeeded
-      if (isPaid) {
-        await adjustStock(orderItems, session, false);
-        stockReserved = true;
-        orderDoc.paymentStatus = "paid";
-        orderDoc.isPaid = true;
-        orderDoc.paidAt = new Date();
-      }
+    } else if (paymentMethod === "stripe" && isPaid) {
+      await adjustStock(newOrderItems, null, false);
+      stockReserved = true;
+      orderDoc.paymentStatus = "paid";
+      orderDoc.isPaid = true;
+      orderDoc.paidAt = new Date();
     }
 
-    // Mark whether stock was reserved for this order
     orderDoc.stockReserved = stockReserved;
 
-    // Create order within the transaction
-    const [createdOrder] = await Order.create([orderDoc], { session });
-
-    // Commit transaction and close session
-    await session.commitTransaction();
-    session.endSession();
-
-    res.status(201).json(createdOrder);
+    // Save order
+    const createdOrder = await Order.create(orderDoc);
+    res.status(201).json({
+      success: true,
+      message: "Order created successfully",
+      order: createdOrder,
+    });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     next(error);
   }
 };
 
 /**
- * Fetch all orders belonging to the logged-in user
+ * Fetch all orders for current user
  */
 export const getMyOrders = async (req, res, next) => {
   try {
@@ -141,17 +187,17 @@ export const getMyOrders = async (req, res, next) => {
       return next(err);
     }
 
-    const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
-    return res.json(orders);
+    const orders = await Order.find({ user: req.user.id }).sort({
+      createdAt: -1,
+    });
+    res.json(orders);
   } catch (error) {
-    error.statusCode = error.statusCode || 500;
-    return next(error);
+    next(error);
   }
 };
 
 /**
- * Get single order details by ID
- * - Accessible by the order owner or admin only
+ * Get order by ID (owner or admin)
  */
 export const getOrderById = async (req, res, next) => {
   try {
@@ -161,33 +207,32 @@ export const getOrderById = async (req, res, next) => {
       return next(err);
     }
 
-    const order = await Order.findById(req.params.id).populate("user", "name email");
-
+    const order = await Order.findById(req.params.id).populate(
+      "user",
+      "name email"
+    );
     if (!order) {
       const err = new Error("Order not found");
       err.statusCode = 404;
       return next(err);
     }
 
-    // Verify ownership or admin privilege
     const isOwner = order.user._id.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
-
     if (!isOwner && !isAdmin) {
       const err = new Error("Unauthorized");
       err.statusCode = 401;
       return next(err);
     }
 
-    return res.json(order);
+    res.json(order);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 /**
- * Get all orders (Admin only)
- * - Supports pagination and filters by user, payment status, or payment method
+ * Admin: Get all orders (paginated)
  */
 export const getAllOrders = async (req, res, next) => {
   try {
@@ -213,22 +258,17 @@ export const getAllOrders = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
-    return res.json({
+    res.json({
       data: orders,
-      meta: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      meta: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 /**
- * Update order status or delivery info (Admin only)
+ * Admin: Update order delivery status
  */
 export const updateOrderStatus = async (req, res, next) => {
   try {
@@ -245,36 +285,24 @@ export const updateOrderStatus = async (req, res, next) => {
       return next(err);
     }
 
-    const { status, isDelivered } = req.body;
+    const { isDelivered } = req.body;
 
-    if (typeof status !== "undefined") order.status = status;
-
-    // Toggle delivery state and timestamp
-    if (isDelivered && !order.isDelivered) {
-      order.isDelivered = true;
-      order.deliveredAt = new Date();
-    } else if (!isDelivered && order.isDelivered) {
-      order.isDelivered = false;
-      order.deliveredAt = undefined;
+    if (typeof isDelivered !== "undefined") {
+      order.isDelivered = Boolean(isDelivered);
+      order.deliveredAt = isDelivered ? new Date() : undefined;
     }
 
     const updated = await order.save();
-    return res.json(updated);
+    res.json(updated);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 /**
- * Mark an order as paid (User or Admin)
- * - Verifies user ownership
- * - Reserves stock if not already done
- * - Updates payment details and marks order paid
+ * Mark order as paid (User/Admin)
  */
 export const updateOrderToPaid = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     if (!req.user || !req.user.id) {
       const err = new Error("Authentication required");
@@ -282,7 +310,7 @@ export const updateOrderToPaid = async (req, res, next) => {
       return next(err);
     }
 
-    const order = await Order.findById(req.params.id).session(session);
+    const order = await Order.findById(req.params.id);
     if (!order) {
       const err = new Error("Order not found");
       err.statusCode = 404;
@@ -291,32 +319,23 @@ export const updateOrderToPaid = async (req, res, next) => {
 
     const isOwner = order.user._id.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
-
     if (!isOwner && !isAdmin) {
       const err = new Error("Unauthorized");
       err.statusCode = 401;
       return next(err);
     }
 
-    // Skip if already paid
-    if (order.isPaid) {
-      await session.commitTransaction();
-      session.endSession();
-      return res.json(order);
-    }
+    if (order.isPaid) return res.json(order);
 
-    // Reserve stock if not done already
     if (!order.stockReserved) {
-      await adjustStock(order.orderItems, session, false);
+      await adjustStock(order.orderItems, null, false);
       order.stockReserved = true;
     }
 
-    // Mark order as paid
     order.isPaid = true;
     order.paymentStatus = "paid";
     order.paidAt = new Date();
 
-    // Attach payment details if available
     if (req.body.paymentResult) {
       order.paymentResult = req.body.paymentResult;
       if (req.body.paymentResult.id) {
@@ -324,25 +343,17 @@ export const updateOrderToPaid = async (req, res, next) => {
       }
     }
 
-    const updated = await order.save({ session });
-    await session.commitTransaction();
-    session.endSession();
-
+    const updated = await order.save();
     res.json(updated);
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    return next(error);
+    next(error);
   }
 };
 
 /**
- * Delete an order (Admin only)
- * - Restores stock if order was not paid but stock was reserved
+ * Admin: Delete order + restore stock if needed
  */
 export const deleteOrder = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     if (!req.user || req.user.role !== "admin") {
       const err = new Error("Unauthorized");
@@ -350,26 +361,20 @@ export const deleteOrder = async (req, res, next) => {
       return next(err);
     }
 
-    const order = await Order.findById(req.params.id).session(session);
+    const order = await Order.findById(req.params.id);
     if (!order) {
       const err = new Error("Order not found");
       err.statusCode = 404;
       return next(err);
     }
 
-    // Restore stock if it was reserved but not paid
     if (order.stockReserved && !order.isPaid) {
-      await adjustStock(order.orderItems, session, true);
+      await adjustStock(order.orderItems, true);
     }
 
-    await order.deleteOne({ session });
-    await session.commitTransaction();
-    session.endSession();
-
+    await order.deleteOne();
     res.json({ message: "Order deleted successfully" });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    return next(error);
+    next(error);
   }
 };

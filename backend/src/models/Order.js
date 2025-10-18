@@ -19,8 +19,16 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+   discountPercentage: {
+    type: Number,
+    default: 0,
+  },
   image: {
     type: String,
+  },
+  subTotal: {
+    type: Number,
+    required: true,
   },
 });
 
@@ -34,7 +42,7 @@ const orderSchema = new mongoose.Schema(
 
     orderItems: [orderItemSchema],
 
-    shippingAdress: {
+    shippingAddress: {
       address: {
         type: String,
         required: true,
@@ -79,6 +87,8 @@ const orderSchema = new mongoose.Schema(
 
     isDelivered: { type: Boolean, default: false },
     deliveredAt: { type: Date },
+
+    stockReserved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

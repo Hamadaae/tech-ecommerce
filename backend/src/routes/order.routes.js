@@ -13,15 +13,15 @@ import {
 
 const router = express.Router();
 
-// 🧍‍♂️ User Routes (Protected)
-router.post('/', authMiddleware, createOrder);          // Create new order
-router.get('/my', authMiddleware, getMyOrders);         // Get user's own orders
-router.get('/:id', authMiddleware, getOrderById);       // Get specific order by ID
-router.put('/:id/pay', authMiddleware, updateOrderToPaid); // Mark order as paid
+// User Routes 
+router.post('/', authMiddleware, createOrder);          
+router.get('/my', authMiddleware, getMyOrders);         
+router.get('/:id', authMiddleware, getOrderById);       
+router.put('/:id/pay', authMiddleware, updateOrderToPaid); 
 
-// 🛠️ Admin Routes (Protected + Admin)
-router.get('/', authMiddleware, adminMiddleware, getAllOrders); // List all orders
-router.put('/:id/status', authMiddleware, adminMiddleware, updateOrderStatus); // Update order status
-router.delete('/:id', authMiddleware, adminMiddleware, deleteOrder); // Delete order
+// Admin Routes 
+router.get('/', authMiddleware, adminMiddleware, getAllOrders); 
+router.put('/:id/status', authMiddleware, adminMiddleware, updateOrderStatus); 
+router.delete('/:id', authMiddleware, adminMiddleware, deleteOrder); 
 
 export default router;
