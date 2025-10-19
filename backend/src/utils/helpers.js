@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import Product from '../models/Product.js';
 
 /**
  * Hash plain password with bcrypt

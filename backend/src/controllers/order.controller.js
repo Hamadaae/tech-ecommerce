@@ -279,14 +279,17 @@ export const updateOrderStatus = async (req, res, next) => {
 /**
  * Mark order as paid (User/Admin)
  */
+// controllers/order.controller.js (updateOrderToPaid)
 export const updateOrderToPaid = async (req, res, next) => {
   try {
+    // Auth check
     if (!req.user || !req.user.id) {
       const err = new Error("Authentication required");
       err.statusCode = 401;
       return next(err);
     }
 
+    // Load order
     const order = await Order.findById(req.params.id);
     if (!order) {
       const err = new Error("Order not found");
@@ -296,76 +299,85 @@ export const updateOrderToPaid = async (req, res, next) => {
 
     const isOwner = order.user._id.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
-
     if (!isOwner && !isAdmin) {
       const err = new Error("Unauthorized");
       err.statusCode = 401;
       return next(err);
     }
 
+    // If already paid, return early
     if (order.isPaid) return res.json(order);
 
-    // Handle Stripe payments
+    // Preferred flow: client sends paymentResult.id (Stripe PaymentIntent id)
     if (req.body.paymentResult && req.body.paymentResult.id) {
       try {
         const paymentIntentId = req.body.paymentResult.id;
         const paymentIntent = await getPaymentIntent(paymentIntentId);
 
-        if (
-          paymentIntent &&
-          (paymentIntent.status === "succeeded" ||
-            paymentIntent.status === "requires_capture")
-        ) {
-          if (!order.stockReserved) {
+        // Ensure paymentIntent exists and has acceptable status
+        if (!paymentIntent || !["succeeded", "requires_capture"].includes(paymentIntent.status)) {
+          const err = new Error("Payment not confirmed by Stripe");
+          err.statusCode = 400;
+          return next(err);
+        }
+
+        // Extra safety: metadata.orderId should match this order (if you added metadata on creation)
+        if (paymentIntent.metadata && paymentIntent.metadata.orderId) {
+          if (paymentIntent.metadata.orderId !== order._id.toString()) {
+            const err = new Error("PaymentIntent metadata does not match order id");
+            err.statusCode = 400;
+            return next(err);
+          }
+        }
+
+        // Extra safety: verify amount matches expected order total (in cents)
+        const expectedAmount = Math.round(Number(order.totalPrice || 0) * 100);
+        if (typeof paymentIntent.amount === "number" && paymentIntent.amount !== expectedAmount) {
+          const err = new Error("Payment amount does not match order total");
+          err.statusCode = 400;
+          return next(err);
+        }
+
+        // Reserve stock (only if not already reserved)
+        if (!order.stockReserved) {
+          try {
             await adjustStock(order.orderItems, false);
             order.stockReserved = true;
+          } catch (stockErr) {
+            // If stock adjustment fails, surface the error (do NOT mark order paid)
+            stockErr.statusCode = stockErr.statusCode || 400;
+            return next(stockErr);
           }
-
-          order.isPaid = true;
-          order.paymentStatus = "paid";
-          order.paidAt = new Date();
-          order.stripePaymentIntentId = paymentIntentId;
-
-          if (
-            paymentIntent.charges &&
-            paymentIntent.charges.data &&
-            paymentIntent.charges.data.length > 0
-          ) {
-            const charge = paymentIntent.charges.data[0];
-            order.stripeChargeId = charge.id || order.stripeChargeId;
-            order.stripeReceiptUrl = charge.receipt_url || order.stripeReceiptUrl;
-          }
-
-          order.paymentResult = req.body.paymentResult;
-        } else {
-          const error = new Error("Payment failed by Stripe");
-          error.statusCode = 400;
-          return next(error);
         }
-      } catch (error) {
-        return next(error);
+
+        // Persist payment info to the order
+        order.isPaid = true;
+        order.paymentStatus = "paid";
+        order.paidAt = new Date();
+        order.stripePaymentIntentId = paymentIntentId;
+
+        if (paymentIntent.charges && Array.isArray(paymentIntent.charges.data) && paymentIntent.charges.data.length > 0) {
+          const charge = paymentIntent.charges.data[0];
+          order.stripeChargeId = charge.id || order.stripeChargeId;
+          order.stripeReceiptUrl = charge.receipt_url || order.stripeReceiptUrl;
+        }
+
+        order.paymentResult = req.body.paymentResult;
+      } catch (err) {
+        // pass stripe/getPaymentIntent errors to the centralized error handler
+        return next(err);
       }
     } else if (isAdmin) {
-      // Allow admins to manually mark as paid (e.g., for offline payments)
+      // Admin override: allow marking paid without paymentResult
       if (!order.stockReserved) {
-        await adjustStock(order.orderItems, false);
-        order.stockReserved = true;
+        try {
+          await adjustStock(order.orderItems, false);
+          order.stockReserved = true;
+        } catch (stockErr) {
+          stockErr.statusCode = stockErr.statusCode || 400;
+          return next(stockErr);
+        }
       }
-      // if (!order.stockReserved) {
-      //   await adjustStock(order.orderItems, false);
-      //   order.stockReserved = true;
-      // }
-      
-      // order.isPaid = true;
-      // order.paymentStatus = "paid";
-      // order.paidAt = new Date();
-      
-      // if (req.body.paymentResult) {
-      //   order.paymentResult = req.body.paymentResult;
-      //   if (req.body.paymentResult.id) {
-      //     order.stripePaymentIntentId = req.body.paymentResult.id;
-      //   }
-      // }
 
       order.isPaid = true;
       order.paymentStatus = "paid";
@@ -378,17 +390,20 @@ export const updateOrderToPaid = async (req, res, next) => {
         }
       }
     } else {
+      // Not owner and not admin, or no payment provided
       const err = new Error("paymentResult.id is required to mark order paid");
       err.statusCode = 400;
       return next(err);
     }
 
+    // Save and return updated order
     const updated = await order.save();
     res.json(updated);
   } catch (error) {
     next(error);
   }
 };
+
 
 /**
  * Admin: Delete order + restore stock if needed
