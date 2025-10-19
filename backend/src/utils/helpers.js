@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import Product from '../models/Product.js';
 
 /**
  * Hash plain password with bcrypt
@@ -38,3 +39,33 @@ export const verifyToken = (token) => {
     throw err;
   }
 };
+
+/**
+ * Adjust product stock quantities.
+ * - Decrease stock when an order is placed.
+ * - Increase stock when an order is canceled or deleted.
+ */
+export async function adjustStock(items, increment = false) {
+  for (const item of items) {
+    const op = increment
+      ? { $inc: { stock: item.quantity } }
+      : { $inc: { stock: -item.quantity } };
+
+    if (!increment) {
+      // Ensure stock availability before decrement
+      const updated = await Product.findOneAndUpdate(
+        { _id: item.product, stock: { $gte: item.quantity } },
+        op,
+        { new: true }
+      );
+      if (!updated) {
+        const err = new Error(`Insufficient stock for product ${item.product}`);
+        err.statusCode = 400;
+        throw err;
+      }
+    } else {
+      // Restore stock on rollback or deletion
+      await Product.updateOne({ _id: item.product }, op);
+    }
+  }
+}

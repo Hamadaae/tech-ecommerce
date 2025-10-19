@@ -1,26 +1,31 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Hero } from '../../shared/components/hero/hero';
-import { ProductCard } from '../../shared/components/product-card/product-card';
+import { Component, OnInit, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { Product } from '../../core/models/product.model';
+import * as ProductActions from '../../store/products/product.actions';
+import { selectProductList, selectProductLoading, selectProductState } from '../../store/products/product.selectors';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-home-test',
   standalone: true,
-  imports: [CommonModule, Hero, ProductCard],
-  templateUrl: './home.html',
+  template: `<div>Check console for Redux test logs.</div>`
 })
-export class Home {
-  products = [
-    { name: 'MacBook Pro 14"', category: 'Laptops', price: 1999, image: 'assets/macbook.jpg' },
-    { name: 'iPad Air', category: 'Tablets', price: 699, image: 'assets/ipad.jpg' },
-    { name: 'iPhone 15', category: 'Smartphones', price: 999, image: 'assets/iphone.jpg' },
-    { name: 'AirPods Pro', category: 'Accessories', price: 249, image: 'assets/airpods.jpg' },
-  ];
+export class HomeTest implements OnInit {
+  private store = inject(Store);
+  products$!: Observable<Product[]>;
+  loading$!: Observable<boolean>;
 
-  newArrivals = [
-    { name: 'Dell XPS 13', category: 'Laptops', price: 1299, image: 'assets/dell-xps.jpg' },
-    { name: 'Samsung Galaxy Tab S9', category: 'Tablets', price: 849, image: 'assets/galaxy-tab.jpg' },
-    { name: 'Google Pixel 8', category: 'Smartphones', price: 799, image: 'assets/pixel.jpg' },
-    { name: 'Sony WH-1000XM5', category: 'Accessories', price: 399, image: 'assets/sony-headphones.jpg' },
-  ];
+  ngOnInit(): void {
+    this.store.dispatch(ProductActions.loadProducts({ page: 1, limit: 20 }));
+
+    this.products$ = this.store.select(selectProductList);
+    this.loading$ = this.store.select(selectProductLoading);
+
+    this.products$.subscribe(list => console.log('[TestHome] Products:', list));
+    this.loading$.subscribe(load => console.log('[TestHome] Loading:', load));
+
+    this.store.select(selectProductState).subscribe(state =>
+      console.log('[TestHome] Full product state:', state)
+    );
+  }
 }

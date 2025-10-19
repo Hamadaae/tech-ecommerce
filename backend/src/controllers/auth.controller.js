@@ -12,8 +12,8 @@ export const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const err = new Error("Validation Failed");
-      err.statusCode = 400;
+      const err = new Error("Invalid Input Data");
+      err.statusCode = 401;
       err.type = "express-validator";
       err.errors = errors.array();
       return next(err);
@@ -23,7 +23,7 @@ export const register = async (req, res, next) => {
     const exists = await User.findOne({ email });
     if (exists) {
       const err = new Error("User already exists");
-      err.statusCode = 400;
+      err.statusCode = 401;
       return next(err);
     }
     const hashed = await hashPassword(password);
@@ -42,8 +42,8 @@ export const login = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const err = new Error("Validation Failed");
-      err.statusCode = 400;
+      const err = new Error("Invalid Login Data");
+      err.statusCode = 401;
       err.type = "express-validator";
       err.errors = errors.array();
       return next(err);
