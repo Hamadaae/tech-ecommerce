@@ -1,4 +1,0 @@
-/* Fallback background color in case Tailwind isn't processed yet */
-.home-root {
-	background: #ef4444; /* Tailwind red-500 */
-}
