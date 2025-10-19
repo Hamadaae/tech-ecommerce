@@ -8,6 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { isLoggedIn, selectUser } from '../../../store/auth/auth.selectors';
+import { logout } from '../../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-navbar',
@@ -26,36 +30,29 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './navbar.html',
 })
 export class Navbar {
-  isLoggedIn = false; // Change to true when user is logged in
-  cartItemCount = 0; // number of items in cart
+
+  isLoggedIn$: Observable<boolean>;
+  user$: Observable<any>;
+  cartItemCount = 0;
   showMobileSearch = false;
   searchQuery = '';
-  isAnimating = false;
 
-  constructor() {
-    // TODO: replace with real cart service subscription
-    this.cartItemCount = 0; // default, update dynamically in real app
+  constructor(private store: Store) {
+    this.isLoggedIn$ = this.store.select(isLoggedIn);
+    this.user$ = this.store.select(selectUser);
   }
 
   toggleMobileSearch() {
-    this.isAnimating = true;
     this.showMobileSearch = !this.showMobileSearch;
-    
-    // Reset animation state after transition
-    setTimeout(() => {
-      this.isAnimating = false;
-    }, 300); // Match this with the duration in the CSS transition
   }
 
   onSearch() {
     if (this.searchQuery.trim()) {
-      // TODO: Implement search logic
       console.log('Searching for:', this.searchQuery);
     }
   }
 
   logout() {
-    // TODO: Implement real logout logic
-    this.isLoggedIn = false;
+    this.store.dispatch(logout());
   }
 }
