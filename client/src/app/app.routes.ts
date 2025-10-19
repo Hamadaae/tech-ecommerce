@@ -23,4 +23,8 @@ export const routes: Routes = [
     // TODO: Add route guard for authentication
   },
   { path: '**', redirectTo: '' }, 
+<<<<<<< HEAD
 ];
+=======
+];
+>>>>>>> 11877cdcb930414417e10a13849971c84ac583c6
