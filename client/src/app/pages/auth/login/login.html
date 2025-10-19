@@ -3,6 +3,17 @@
     <!-- LEFT: LOGIN FORM -->
     <div class="p-10">
       <h1 class="text-2xl font-bold mb-6">Customer Login</h1>
+
+      <!-- GLOBAL ERROR MESSAGE -->
+      @if (authError()) {
+      <div
+        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm"
+        role="alert"
+      >
+        {{ authError() }}
+      </div>
+      }
+
       <h2 class="text-lg font-semibold mb-2">Registered Customers</h2>
       <p class="text-sm text-gray-600 mb-6">
         If you have an account, sign in with your email address.
@@ -42,9 +53,12 @@
         <div class="flex justify-between items-center">
           <button
             type="submit"
-            class="bg-[#2563EB] text-white px-6 py-2 rounded-full hover:opacity-90 transition"
+            [disabled]="loginForm.invalid || isLoading()"
+            class="bg-[#2563EB] text-white px-6 py-2 rounded-full hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center min-w-[100px]"
           >
-            Sign In
+            @if (isLoading()) {
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            } @else { Sign In }
           </button>
           <a href="#" class="text-sm text-[#2563EB] hover:underline">Forgot Your Password?</a>
         </div>
@@ -62,7 +76,7 @@
       </ul>
       <button
         class="bg-[#2563EB] text-white px-6 py-2 rounded-full hover:opacity-90 w-fit"
-        routerLink="/register"
+        routerLink="/auth/register"
       >
         Create An Account
       </button>
