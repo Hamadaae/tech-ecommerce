@@ -55,7 +55,7 @@ export class CartService {
 
   addItem(item: OrderItem) {
     const existingIndex = this.items.findIndex(i => i.product === item.product);
-    if (existingIndex) {
+    if (existingIndex >= 0) {
       this.items[existingIndex].quantity += item.quantity;
       this.items[existingIndex].subTotal = Math.round((this.items[existingIndex].price * this.items[existingIndex].quantity) * 100) / 100;
     } else {
