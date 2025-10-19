@@ -1,0 +1,11 @@
+<div class="products-page">
+  <h2>Products</h2>
+
+  <div class="product-grid">
+    <div class="product-card" *ngFor="let product of products">
+      <h3>{{ product.name }}</h3>
+      <p>\${{ product.price }}</p>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+  </div>
+</div>
