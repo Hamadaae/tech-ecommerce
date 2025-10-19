@@ -1,0 +1,71 @@
+<div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] px-4">
+  <div class="bg-white w-full max-w-6xl rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2">
+    <!-- LEFT: LOGIN FORM -->
+    <div class="p-10">
+      <h1 class="text-2xl font-bold mb-6">Customer Login</h1>
+      <h2 class="text-lg font-semibold mb-2">Registered Customers</h2>
+      <p class="text-sm text-gray-600 mb-6">
+        If you have an account, sign in with your email address.
+      </p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium mb-1"
+            >Email <span class="text-red-500">*</span></label
+          >
+          <input
+            formControlName="email"
+            type="email"
+            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring focus:ring-[#FCA311]"
+          />
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <p class="text-red-600 text-sm mt-1">Please enter a valid email.</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium mb-1"
+            >Password <span class="text-red-500">*</span></label
+          >
+          <input
+            formControlName="password"
+            type="password"
+            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring focus:ring-[#FCA311]"
+          />
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <p class="text-red-600 text-sm mt-1">Password is required.</p>
+          }
+        </div>
+
+        <div class="flex justify-between items-center">
+          <button
+            type="submit"
+            class="bg-[#2563EB] text-white px-6 py-2 rounded-full hover:opacity-90 transition"
+          >
+            Sign In
+          </button>
+          <a href="#" class="text-sm text-[#2563EB] hover:underline">Forgot Your Password?</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- RIGHT: NEW CUSTOMER -->
+    <div class="bg-[#F9FBFF] p-10 flex flex-col justify-center">
+      <h2 class="text-lg font-semibold mb-3">New Customer?</h2>
+      <p class="text-sm text-gray-600 mb-6">Creating an account has many benefits:</p>
+      <ul class="text-sm text-gray-700 space-y-2 mb-6">
+        <li>• Check out faster</li>
+        <li>• Keep more than one address</li>
+        <li>• Track orders and more</li>
+      </ul>
+      <button
+        class="bg-[#2563EB] text-white px-6 py-2 rounded-full hover:opacity-90 w-fit"
+        routerLink="/register"
+      >
+        Create An Account
+      </button>
+    </div>
+  </div>
+</div>
