@@ -1,5 +1,4 @@
-// src/app/store/orders/order.effects.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as OrderActions from './order.actions';
 import { OrderService } from '../../core/services/order.service';
@@ -8,11 +7,13 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class OrderEffects {
-  constructor(
-    private actions$: Actions,
-    private orderService: OrderService,
-    private router: Router
-  ) {}
+  // Use inject() to pull dependencies directly
+  private actions$ = inject(Actions);
+  private orderService = inject(OrderService);
+  private router = inject(Router);
+
+  // The constructor is now clean
+  constructor() {} 
 
   createOrder$ = createEffect(() =>
     this.actions$.pipe(
@@ -41,9 +42,9 @@ export class OrderEffects {
     () =>
       this.actions$.pipe(
         ofType(OrderActions.createOrderSuccess),
-
         switchMap(({ order }) => {
           if (order && order._id) {
+            // Navigate to the new order detail page
             this.router.navigate([`/orders/${order._id}`]);
           }
           return of(); 
