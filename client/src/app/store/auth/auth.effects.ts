@@ -50,12 +50,9 @@ export class AuthEffect {
     { dispatch: false }
   );
 
-  // NEW EFFECT: Loads user data on app initialization if a token exists
   init$ = createEffect(() =>
-    // Listen for the special NgRx 'INIT' action (dispatched once on app startup)
     this.actions$.pipe(
       ofType('@ngrx/store/init', '@ngrx/effects/init'),
-      // First, attempt to load data from localStorage (this triggers the reducer)
       map(() => AuthActions.loadUserFromStorage())
     )
   );
@@ -63,14 +60,11 @@ export class AuthEffect {
   loadUserFromStorage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loadUserFromStorage),
-      // Check if a token was found by the reducer
       filter(() => !!localStorage.getItem('token')),
-      // If token exists, call getMe to validate it and get fresh user data
       switchMap(() =>
         this.authService.getMe().pipe(
           map((user) => AuthActions.loginSuccess({ user, token: localStorage.getItem('token')! })),
           catchError(() => {
-            // If getMe fails (token expired/invalid), log the user out
             return of(AuthActions.logout());
           })
         )

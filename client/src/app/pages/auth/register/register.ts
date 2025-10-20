@@ -15,11 +15,9 @@ import { selectAuthError, selectAuthLoading } from '../../../store/auth/auth.sel
 export class Register {
   registerForm: FormGroup;
 
-  // Use inject() for modern Angular dependency injection
   private fb = inject(FormBuilder);
-  private store = inject(Store); // <-- Injected Store
+  private store = inject(Store);
 
-  // Selectors as Signals for reactive UI state
   public authError = this.store.selectSignal(selectAuthError);
   public isLoading = this.store.selectSignal(selectAuthLoading);
 
@@ -43,10 +41,8 @@ export class Register {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      // Destructure to exclude confirmPassword before sending to the service/API
       const { confirmPassword, ...data } = this.registerForm.value;
 
-      // DISPATCH the NgRx action
       this.store.dispatch(AuthActions.register({ data }));
     }
   }

@@ -7,12 +7,10 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class OrderEffects {
-  // Use inject() to pull dependencies directly
   private actions$ = inject(Actions);
   private orderService = inject(OrderService);
   private router = inject(Router);
 
-  // The constructor is now clean
   constructor() {} 
 
   createOrder$ = createEffect(() =>
@@ -44,7 +42,6 @@ export class OrderEffects {
         ofType(OrderActions.createOrderSuccess),
         switchMap(({ order }) => {
           if (order && order._id) {
-            // Navigate to the new order detail page
             this.router.navigate([`/orders/${order._id}`]);
           }
           return of(); 

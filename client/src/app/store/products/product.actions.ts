@@ -1,7 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Product } from '../../core/models/product.model';
 
-// ✅ Load all products
 export const loadProducts = createAction('[Products] Load Products');
 
 export const loadProductsSuccess = createAction(
@@ -14,7 +13,6 @@ export const loadProductsFailure = createAction(
   props<{ error: string }>()
 );
 
-// ✅ Load single product by ID
 export const loadProduct = createAction(
   '[Products] Load Product',
   props<{ id: string }>()

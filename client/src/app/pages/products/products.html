@@ -1,10 +1,8 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-/* Inter font setup */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 :root { font-family: 'Inter', sans-serif; }
-/* Custom scrollbar for better aesthetics */
 .product-grid::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -21,28 +19,22 @@
     <p class="mt-2 text-lg text-gray-600">Browse through thousands of high-quality products.</p>
   </header>
 
-  <!-- LOADING STATE -->
 
   <div *ngIf="loading$ | async" class="flex justify-center items-center h-64">
     <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
     <p class="ml-4 text-xl text-indigo-600">Loading products...</p>
   </div>
 
-  <!-- ERROR STATE -->
-
   <div *ngIf="error$ | async as error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
     <p class="font-bold">Error loading products!</p>
     <p>{{ error }}</p>
   </div>
 
-  <!-- PRODUCT GRID -->
 
   <div *ngIf="(products$ | async) as products" class="product-grid mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
     <div *ngFor="let product of products" class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col">
 
-      <!-- Thumbnail -->
       <div class="relative h-48 w-full">
-        <!-- Using product.thumbnail for the image source -->
         <img [src]="product.thumbnail" 
              onerror="this.onerror=null; this.src='https://placehold.co/600x400/2563EB/ffffff?text=No+Image'" 
              alt="{{ product.title }} thumbnail" 
@@ -53,14 +45,12 @@
         </span>
       </div>
 
-      <!-- Product Details -->
       <div class="p-5 flex-grow flex flex-col justify-between">
         <div class="mb-4">
           <h3 class="text-xl font-semibold text-gray-900 truncate" [title]="product.title">{{ product.title }}</h3>
           <p class="text-sm text-gray-500 mt-1">{{ product.brand || 'No Brand' }}</p>
         </div>
         
-        <!-- Price and Rating -->
         <div class="flex items-center justify-between mt-auto">
           <div>
             <div *ngIf="product.discountPercentage" class="text-sm text-gray-500 line-through">${{ product.price | number:'1.2-2' }}</div>
@@ -69,16 +59,13 @@
             </p>
           </div>
           <div class="flex items-center text-yellow-500 text-sm">
-            <!-- Star SVG Icon -->
             <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.636-.921 1.936 0l1.243 3.824a1 1 0 00.95.691h4.027c.969 0 1.371 1.24.588 1.83l-3.264 2.373a1 1 0 00-.364 1.118l1.243 3.824c.3.921-.755 1.688-1.54 1.118l-3.264-2.373a1 1 0 00-1.176 0l-3.264 2.373c-.784.57-1.84-.197-1.54-1.118l1.243-3.824a1 1 0 00-.364-1.118L2.094 9.272c-.783-.59-.38-1.83.588-1.83h4.027a1 1 0 00.95-.691l1.243-3.824z"></path></svg>
-            <!-- Fixed the TS2872 error using the ternary operator -->
+
             <span class="font-bold text-gray-700">{{ product.rating ? (product.rating | number:'1.1-1') : 'N/A' }}</span>
           </div>
         </div>
         
-        <!-- Button Group -->
         <div class="mt-5 space-y-2">
-            <!-- BINDING THE addToCart METHOD -->
             <button (click)="addToCart(product)" 
                     class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
                 Add to Cart
@@ -91,7 +78,6 @@
       </div>
     </div>
 
-    <!-- Empty State Message -->
     <div *ngIf="products.length === 0 && !(loading$ | async)" class="col-span-full text-center py-12">
       <p class="text-2xl text-gray-500 font-semibold">No products found.</p>
       <p class="text-gray-400 mt-2">Try refreshing or check back later!</p>
