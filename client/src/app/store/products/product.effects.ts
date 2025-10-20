@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core'; // <-- Import inject
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as ProductActions from './product.actions';
 import { ProductService } from '../../core/services/product.service';
@@ -6,14 +6,17 @@ import { catchError, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class ProductEffects {
-  constructor(
-    private actions$: Actions,
-    private productService: ProductService
-  ) {}
+  // Use inject() to pull dependencies directly, guaranteeing they are defined
+  private actions$ = inject(Actions);
+  private productService = inject(ProductService);
+
+  // The constructor is now clean (and can be removed) as dependencies are injected above.
+  constructor() {} 
 
   // ✅ Load all products
   loadProducts$ = createEffect(() =>
-    this.actions$.pipe(
+    // 'this.actions$' is now guaranteed to be defined
+    this.actions$.pipe( 
       ofType(ProductActions.loadProducts),
       mergeMap(() =>
         this.productService.getProducts().pipe(
@@ -28,6 +31,7 @@ export class ProductEffects {
 
   // ✅ Load single product by ID
   loadProduct$ = createEffect(() =>
+    // 'this.actions$' is now guaranteed to be defined
     this.actions$.pipe(
       ofType(ProductActions.loadProduct),
       mergeMap(({ id }) =>
