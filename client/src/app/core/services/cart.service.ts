@@ -1,23 +1,49 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { OrderItem } from "../models/order.model";
+import { AuthService } from "./auth.service";
+import { NotificationService } from "./notification.service";
+import { User } from "../models/user.model";
+import { Store } from "@ngrx/store";
+import { selectUser, isLoggedIn } from "../../store/auth/auth.selectors";
+import { Subscription } from "rxjs";
 
-const CART_STORAGE_KEY = 'angular-ecommerce-cart';
+const CART_STORAGE_KEY_PREFIX = 'angular-ecommerce-cart';
 
 @Injectable({ providedIn: "root" })
 export class CartService implements OnDestroy {
   private items: OrderItem[] = [];
   private listeners: Array<() => void> = [];
   private isReady = false;
+  private currentUser: User | null = null;
+  private subscriptions: Subscription = new Subscription();
 
-  constructor() {
-    this.load();
+  constructor(private authService: AuthService, private notificationService: NotificationService, private store: Store) {
+    this.subscriptions.add(
+      this.store.select(selectUser).subscribe(user => {
+        this.currentUser = user;
+        this.load();
+      })
+    );
+    this.subscriptions.add(
+      this.store.select(isLoggedIn).subscribe(isLoggedIn => {
+        if (!isLoggedIn) {
+          this.currentUser = null;
+          this.load();
+        }
+      })
+    );
     this.isReady = true;
     console.log("CartService initialized using localStorage.");
   }
 
+  private getCartStorageKey(): string {
+    const userId = this.currentUser ? this.currentUser._id : 'guest';
+    return `${CART_STORAGE_KEY_PREFIX}-${userId}`;
+  }
+
   private load(): void {
     try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+      const storedCart = localStorage.getItem(this.getCartStorageKey());
       if (storedCart) {
         this.items = JSON.parse(storedCart) as OrderItem[];
       } else {
@@ -27,12 +53,13 @@ export class CartService implements OnDestroy {
       console.error("CartService: Failed to load cart from localStorage.", e);
       this.items = [];
     }
+    this.emit();
   }
 
   private save(newItems: OrderItem[]): void {
     this.items = newItems;
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems));
+      localStorage.setItem(this.getCartStorageKey(), JSON.stringify(newItems));
     } catch (e) {
       console.error('Cart save error (localStorage)', e);
     }
@@ -79,6 +106,7 @@ export class CartService implements OnDestroy {
     }
 
     this.save(updatedItems);
+    this.notificationService.success('Item added to cart successfully!');
   }
 
   async updateItemQuantity(productId: string, quantity: number): Promise<void> {
@@ -111,6 +139,11 @@ export class CartService implements OnDestroy {
     this.save([]);
   }
 
+  getCount(): number {
+    return this.items.reduce((acc, item) => acc + (item.quantity ?? 0), 0);
+  }
+
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

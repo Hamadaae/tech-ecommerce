@@ -10,6 +10,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { CartService } from '../../../core/services/cart.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { Subscription } from 'rxjs';
 import { isLoggedIn, selectUser } from '../../../store/auth/auth.selectors';
 import { logout } from '../../../store/auth/auth.actions';
 
@@ -36,10 +39,23 @@ export class Navbar {
   cartItemCount = 0;
   showMobileSearch = false;
   searchQuery = '';
+  private cartSub?: () => void;
+  private subs = new Subscription();
 
-  constructor(private store: Store) {
+  constructor(private store: Store, private cartService: CartService, private notificationService: NotificationService) {
     this.isLoggedIn$ = this.store.select(isLoggedIn);
     this.user$ = this.store.select(selectUser);
+    // initialize & subscribe to cart
+    this.cartItemCount = this.cartService.getCount();
+    this.cartSub = this.cartService.onChange(() => {
+      this.cartItemCount = this.cartService.getCount();
+    });
+    // log notifications for now
+    this.subs.add(this.notificationService.notifications$.subscribe(n => console.log('Notification:', n)));
+  }
+  ngOnDestroy() {
+    if (this.cartSub) this.cartSub();
+    this.subs.unsubscribe();
   }
 
   toggleMobileSearch() {
