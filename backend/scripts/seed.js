@@ -42,6 +42,8 @@ function normalizeProduct(product, fallBackCategory) {
       typeof product.price === "number"
         ? product.price
         : Number(product.price || 0),
+    category: product.category || fallBackCategory || '',
+    price: typeof product.price === 'number' ? product.price : Number(product.price || 0),
     discountPercentage: product.discountPercentage,
     rating: product.rating,
     stock: product.stock,
