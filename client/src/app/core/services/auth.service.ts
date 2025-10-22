@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, LoginPayload, RegisterPayload } from '../models/user.model';
+import { User, LoginPayload, RegisterPayload ,UserUpdatePayload } from '../models/user.model';
 
 export interface AuthResponse {
   user: User;
@@ -26,6 +26,14 @@ export class AuthService {
 
   getMe(): Observable<User> {
     return this.http.get<User>(`${AUTH_API}/me`);
+  }
+
+  updateUser(userId : string , data: UserUpdatePayload): Observable<User> {
+    return this.http.put<User>(`${AUTH_API}/users/${userId}`, data);
+  }
+
+  deleteUser(userId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${AUTH_API}/users/${userId}`);
   }
 
 }

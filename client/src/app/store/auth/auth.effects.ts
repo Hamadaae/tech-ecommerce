@@ -116,4 +116,55 @@ export class AuthEffect {
       ),
     { dispatch: false }
   );
+  
+
+  updateUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updateUser),
+      mergeMap(({ userId, data }) =>
+        this.authService.updateUser(userId, data).pipe(
+          map((user) => AuthActions.updateUserSuccess({ user })),
+          catchError((error) =>
+            of(
+              AuthActions.updateUserFailure({
+                error: error.error?.message || error.message || 'Failed to update user profile.',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
+  deleteUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.deleteUser),
+      mergeMap(({ userId }) =>
+        this.authService.deleteUser(userId).pipe(
+          map(() => AuthActions.deleteUserSuccess()),
+          catchError((error) =>
+            of(
+              AuthActions.deleteUserFailure({
+                error: error.error?.message || error.message || 'Failed to delete user account.',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+  
+  deleteUserSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.deleteUserSuccess),
+        tap(() => {
+          // Perform the same cleanup as logout
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/auth/register']); 
+        })
+      ),
+    { dispatch: false }
+  );
 }
