@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+import 'dotenv/config';
 import axios from 'axios';
 import connectDB from '../src/config/db.js';
 import Product from '../src/models/Product.js';

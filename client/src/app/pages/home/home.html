@@ -1,1 +1,66 @@
-<p>home works!</p>
+<!-- Hero Banner -->
+<div class="relative bg-black">
+  <img [src]="'/assets/banners/banner.png'" 
+       onerror="this.src='https://placehold.co/1920x600/333/fff?text=MSI+Gaming+Monitor+Promotion'" 
+       alt="MSI Gaming Monitor Promotion" 
+       class="w-full">
+  
+</div>
+
+<!-- Categories Section -->
+<section class="py-12 bg-gray-100">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Shop By Category</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      @for (category of categories; track category.title) {
+        <a [routerLink]="['/category', category.link]" class="group">
+          <div class="rounded-lg overflow-hidden shadow-lg bg-white">
+            <img [src]="category.image" [alt]="category.title" class="w-full aspect-video object-cover">
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                {{ category.title }}
+              </h3>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-12">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Featured Products</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (product of products$ | async; track product.id) {
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <img [src]="product.thumbnail" [alt]="product.title" class="w-full aspect-video object-cover">
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.title }}</h3>
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold text-gray-900">${{ product.price }}</span>
+              <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Top Brands -->
+<section class="py-12 bg-gray-100">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Top Brands</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      @for (brand of brands; track brand) {
+        <a [href]="brand" class="block bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+          <img [src]="brand" [alt]="brand" class="w-full h-12 object-contain">
+        </a>
+      }
+    </div>
+  </div>
+</section>

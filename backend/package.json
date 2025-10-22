@@ -23,6 +23,7 @@
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
+    "multer": "^2.0.2",
     "stripe": "^19.1.0"
   }
 }

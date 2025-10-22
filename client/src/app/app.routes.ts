@@ -37,6 +37,16 @@ export const routes: Routes = [
         canActivate: [isAppReadyGuard, AuthGuard] 
     },
     {
+        path: 'profile',
+        loadComponent: () => import('./pages/profile/profile').then(m => m.Profile),
+        canActivate: [isAppReadyGuard, AuthGuard]
+    },
+    {
+        path: 'cart',
+        loadComponent: () => import('./pages/cart/cart').then(m => m.Cart),
+        canActivate: [isAppReadyGuard, AuthGuard]
+    },
+    {
         path: 'auth',
         canActivate: [isAppReadyGuard], 
         children: [

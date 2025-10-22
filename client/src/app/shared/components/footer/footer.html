@@ -1,0 +1,118 @@
+<footer class="bg-black text-gray-300 py-12">
+  <!-- Newsletter -->
+  <div class="container mx-auto px-6 md:px-12">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Sign Up To Our Newsletter.</h2>
+        <p class="text-gray-400">Be the first to hear about the latest offers.</p>
+      </div>
+
+      <form (ngSubmit)="subscribe()" class="flex gap-3 w-full md:w-auto max-w-md">
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Your Email"
+          class="flex-1 px-4 py-2 rounded-md border border-gray-600 bg-black text-white focus:outline-none focus:border-blue-500"
+        />
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md transition"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+
+    <!-- Links -->
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 border-t border-gray-700 pt-10"
+    >
+      <!-- Column 1 -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Information</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-blue-500">About Us</a></li>
+          <li><a href="#" class="hover:text-blue-500">About Zip</a></li>
+          <li><a href="#" class="hover:text-blue-500">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-blue-500">Search</a></li>
+          <li><a href="#" class="hover:text-blue-500">Terms</a></li>
+          <li><a href="#" class="hover:text-blue-500">Orders and Returns</a></li>
+          <li><a href="#" class="hover:text-blue-500">Contact Us</a></li>
+          <li><a href="#" class="hover:text-blue-500">Advanced Search</a></li>
+          <li><a href="#" class="hover:text-blue-500">Newsletter Subscription</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 2 -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">PC Parts</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-blue-500">CPUs</a></li>
+          <li><a href="#" class="hover:text-blue-500">Add On Cards</a></li>
+          <li><a href="#" class="hover:text-blue-500">Hard Drives (Internal)</a></li>
+          <li><a href="#" class="hover:text-blue-500">Graphic Cards</a></li>
+          <li><a href="#" class="hover:text-blue-500">Keyboards / Mice</a></li>
+          <li><a href="#" class="hover:text-blue-500">Cases / Cooling</a></li>
+          <li><a href="#" class="hover:text-blue-500">RAM (Memory)</a></li>
+          <li><a href="#" class="hover:text-blue-500">Software</a></li>
+          <li><a href="#" class="hover:text-blue-500">Speakers / Headsets</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3 -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Desktop PCs</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-blue-500">Custom PCs</a></li>
+          <li><a href="#" class="hover:text-blue-500">Servers</a></li>
+          <li><a href="#" class="hover:text-blue-500">All-in-One PCs</a></li>
+          <li><a href="#" class="hover:text-blue-500">HP/Compaq PCs</a></li>
+          <li><a href="#" class="hover:text-blue-500">ASUS PCs</a></li>
+          <li><a href="#" class="hover:text-blue-500">Tecs PCs</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4 -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Laptops</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-blue-500">Everyday Notebooks</a></li>
+          <li><a href="#" class="hover:text-blue-500">Workstation Series</a></li>
+          <li><a href="#" class="hover:text-blue-500">Prestige Series</a></li>
+          <li><a href="#" class="hover:text-blue-500">Tablets and Pads</a></li>
+          <li><a href="#" class="hover:text-blue-500">Netbooks</a></li>
+          <li><a href="#" class="hover:text-blue-500">Gaming Notebooks</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 5 -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Address</h3>
+        <p>Address: 1234 Street Address City Address, 1234</p>
+        <p>Phones: <a href="#" class="text-blue-500">(00) 1234 5678</a></p>
+        <p>Mon–Thu: 9:00 AM – 5:30 PM</p>
+        <p>Fri: 9:00 AM – 6:00 PM</p>
+        <p>Sat: 11:00 AM – 5:00 PM</p>
+        <p>Email: <a href="#" class="text-blue-500">shop@email.com</a></p>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div
+      class="flex flex-col md:flex-row justify-between items-center border-t border-gray-700 mt-10 pt-6 text-sm"
+    >
+      <div class="flex gap-4 mb-4 md:mb-0">
+        <mat-icon class="text-white text-lg cursor-pointer">facebook</mat-icon>
+        <mat-icon class="text-white text-lg cursor-pointer">instagram</mat-icon>
+      </div>
+      <div class="flex gap-3 items-center">
+        <img src="assets/paypal.png" alt="PayPal" class="h-6" />
+        <img src="assets/visa.png" alt="Visa" class="h-6" />
+        <img src="assets/mastercard.png" alt="Mastercard" class="h-6" />
+        <img src="assets/discover.png" alt="Discover" class="h-6" />
+      </div>
+      <p class="text-gray-500 mt-4 md:mt-0">Copyright © 2020 Shop Pty. Ltd.</p>
+    </div>
+  </div>
+</footer>
