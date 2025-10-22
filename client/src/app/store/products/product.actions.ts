@@ -1,8 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Product } from '../../core/models/product.model';
 
-// --- READ Operations ---
-
 export const loadProducts = createAction('[Products] Load Products');
 
 export const loadProductsSuccess = createAction(
@@ -30,24 +28,20 @@ export const loadProductFailure = createAction(
   props<{ error: string }>()
 );
 
-// --- CREATE Operation ---
-
 export const createProduct = createAction(
   '[Products] Create Product',
-  props<{ product: Omit<Product, '_id'> }>() // Omit _id as it's assigned by backend
+  props<{ product: Omit<Product, '_id'> }>() 
 );
 
 export const createProductSuccess = createAction(
   '[Products] Create Product Success',
-  props<{ product: Product }>() // Full product including the new _id
+  props<{ product: Product }>()
 );
 
 export const createProductFailure = createAction(
   '[Products] Create Product Failure',
   props<{ error: string }>()
 );
-
-// --- UPDATE Operation ---
 
 export const updateProduct = createAction(
   '[Products] Update Product',
@@ -56,15 +50,13 @@ export const updateProduct = createAction(
 
 export const updateProductSuccess = createAction(
   '[Products] Update Product Success',
-  props<{ product: Product }>() // The fully updated product
+  props<{ product: Product }>()
 );
 
 export const updateProductFailure = createAction(
   '[Products] Update Product Failure',
   props<{ error: string }>()
 );
-
-// --- DELETE Operation ---
 
 export const deleteProduct = createAction(
   '[Products] Delete Product',
@@ -73,7 +65,7 @@ export const deleteProduct = createAction(
 
 export const deleteProductSuccess = createAction(
   '[Products] Delete Product Success',
-  props<{ id: string }>() // Just the ID is needed to remove it from state
+  props<{ id: string }>()
 );
 
 export const deleteProductFailure = createAction(

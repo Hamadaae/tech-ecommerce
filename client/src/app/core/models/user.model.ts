@@ -19,3 +19,9 @@ export interface RegisterPayload {
     email : string,
     password : string
 }
+
+export interface UserUpdatePayload {
+    name? : string,
+    email? : string,
+    password? : string
+}

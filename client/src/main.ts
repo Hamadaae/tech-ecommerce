@@ -23,6 +23,9 @@ import { ProductEffects } from "./app/store/products/product.effects";
 import { orderReducer } from "./app/store/orders/order.reducer";
 import { OrderEffects } from "./app/store/orders/order.effects";
 
+import { wishlistReducer } from "./app/store/wishlist/wishlist.reducer";
+import { WishlistEffects } from "./app/store/wishlist/wishlist.effects";
+
 bootstrapApplication(App, {
   providers : [
     provideHttpClient(),
@@ -31,11 +34,16 @@ bootstrapApplication(App, {
     provideStore({
       auth : authReducer,
       products : productReducer,
-      orders : orderReducer
+      orders : orderReducer,
+      Wishlist : wishlistReducer
     }),
-    provideEffects([AuthEffect, ProductEffects, OrderEffects]),
+    provideEffects([AuthEffect, ProductEffects, OrderEffects, WishlistEffects]),
     provideStoreDevtools({maxAge : 25, logOnly : false}),
     AuthService,
     importProvidersFrom(CoreModule)
   ]
+
 })
+
+
+

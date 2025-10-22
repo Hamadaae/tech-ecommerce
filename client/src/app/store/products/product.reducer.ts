@@ -19,8 +19,6 @@ export const initialState: ProductState = {
 export const productReducer = createReducer(
   initialState,
 
-  // --- READ Operations ---
-
   on(ProductActions.loadProducts, (state) => ({
     ...state,
     loading: true,
@@ -53,8 +51,6 @@ export const productReducer = createReducer(
     error,
   })),
 
-  // --- CREATE Operations ---
-
   on(ProductActions.createProduct, (state) => ({
     ...state,
     loading: true,
@@ -62,7 +58,6 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.createProductSuccess, (state, { product }) => ({
     ...state,
-    // Add the new product to the list
     products: [...state.products, product],
     loading: false,
   })),
@@ -72,8 +67,6 @@ export const productReducer = createReducer(
     error,
   })),
 
-  // --- UPDATE Operations ---
-
   on(ProductActions.updateProduct, (state) => ({
     ...state,
     loading: true,
@@ -81,7 +74,6 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.updateProductSuccess, (state, { product }) => ({
     ...state,
-    // Map over the products and replace the old version with the updated one
     products: state.products.map(p => p._id === product._id ? product : p),
     loading: false,
   })),
@@ -91,8 +83,6 @@ export const productReducer = createReducer(
     error,
   })),
 
-  // --- DELETE Operations ---
-
   on(ProductActions.deleteProduct, (state) => ({
     ...state,
     loading: true,
@@ -100,10 +90,8 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.deleteProductSuccess, (state, { id }) => ({
     ...state,
-    // Filter out the deleted product by ID
     products: state.products.filter(p => p._id !== id),
     loading: false,
-    // Ensure selected product is cleared if the deleted product was selected
     selectedProduct: state.selectedProduct?._id === id ? null : state.selectedProduct,
   })),
   on(ProductActions.deleteProductFailure, (state, { error }) => ({

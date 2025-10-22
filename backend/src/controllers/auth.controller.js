@@ -93,3 +93,52 @@ export const me = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      const err = new Error("Unauthorized");
+      err.statusCode = 401;
+      return next(err);
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      return next(err);
+    }
+    const { name, email, password } = req.body;
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.password = password ? await hashPassword(password) : user.password;
+    await user.save();
+    return res.json(user.toJSON());
+  } catch (error) {
+    error.statusCode = error.statusCode || 500;
+    return next(error);
+  }
+};
+
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      const err = new Error("Unauthorized");
+      err.statusCode = 401;
+      return next(err);
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      return next(err);
+    }
+    await user.deleteOne();
+    return res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    error.statusCode = error.statusCode || 500;
+    return next(error);
+  }
+};
