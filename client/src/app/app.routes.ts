@@ -46,6 +46,17 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/cart/cart').then(m => m.Cart),
         canActivate: [isAppReadyGuard, AuthGuard]
     },
+
+    {
+        path: 'checkout',
+        loadComponent: () => import('./pages/checkout/checkout').then(m => m.Checkout),
+        canActivate: [isAppReadyGuard, AuthGuard]
+    },
+    {
+        path: 'checkout/stripe',
+        loadComponent: () => import('./pages/checkout/stripe-pay').then(m => m.StripePay),
+        canActivate: [isAppReadyGuard, AuthGuard]
+    },
     {
         path: 'auth',
         canActivate: [isAppReadyGuard], 
@@ -66,6 +77,11 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/cart/cart').then(m => m.Cart),
             canActivate: [isAppReadyGuard, AuthGuard]
         },
+
+    {
+        path: 'admin',
+        loadComponent: () => import('./pages/admin/admin').then(m => m.Admin),
+    },
     { 
         path: '**', 
         redirectTo: '', 

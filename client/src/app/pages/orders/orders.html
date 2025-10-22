@@ -1,1 +1,19 @@
-<p>orders works!</p>
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-4">My Orders</h1>
+  <div *ngIf="loading">Loading orders...</div>
+  <div *ngIf="error" class="text-red-500">{{ error }}</div>
+  <div *ngIf="!loading && orders.length === 0">You have no orders yet.</div>
+  <div *ngIf="orders.length > 0" class="space-y-4">
+    <div *ngFor="let o of orders" class="p-4 border rounded-lg flex justify-between items-center">
+      <div>
+        <div class="font-medium">Order ID: {{ o._id }}</div>
+        <div class="text-sm text-gray-600">Placed: {{ o.createdAt | date:'medium' }}</div>
+        <div class="text-sm">Total: {{ o.totalPrice }}</div>
+        <div class="text-sm">Status: {{ o.status }} — Payment: {{ o.paymentStatus }}</div>
+      </div>
+      <div>
+        <button (click)="openOrder(o._id)" class="px-3 py-1 rounded bg-teal-600 text-white">View</button>
+      </div>
+    </div>
+  </div>
+</div>
