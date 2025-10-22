@@ -1,3 +1,19 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-checkout',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-4">Checkout Page</h2>
+      <p>Welcome to checkout!</p>
+    </div>
+  `,
+})
+export class Checkout {}
+
 // import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy, Injectable, Pipe, PipeTransform } from '@angular/core';
 // import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 // import { CommonModule, CurrencyPipe } from '@angular/common';
@@ -7,7 +23,7 @@
 
 // export interface OrderItem {
 //     product: string,
-//     name: string, 
+//     name: string,
 //     quantity: number,
 //     price: number,
 //     discountPercentage?: number,
@@ -23,7 +39,7 @@
 //     country: string
 // }
 
-// export type PaymentMethod = 'stripe' | 'cash_on_delivery' 
+// export type PaymentMethod = 'stripe' | 'cash_on_delivery'
 
 // export interface PaymentResult {
 //     id?: string,
@@ -35,7 +51,7 @@
 // export interface Order {
 //     _id?: string;
 //     user?: string | any;
-//     orderItems: OrderItem[]; 
+//     orderItems: OrderItem[];
 //     shippingAddress: ShippingAddress;
 //     paymentMethod: PaymentMethod;
 //     paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded';
@@ -47,14 +63,14 @@
 //     taxPrice?: number;
 //     totalPrice?: number;
 //     isPaid?: boolean;
-//     paidAt?: string; 
+//     paidAt?: string;
 //     isDelivered?: boolean;
 //     deliveredAt?: string;
 //     stockReserved?: boolean;
 //     createdAt?: string;
 //     updatedAt?: string;
 //     paymentResult?: PaymentResult;
-//     clientSecret?: string; 
+//     clientSecret?: string;
 // }
 
 // export interface Product {
@@ -63,7 +79,7 @@
 //     price?: number,
 //     discountPercentage?: number,
 //     // Add stock for controller logic simulation
-//     stock?: number, 
+//     stock?: number,
 //     // Minimal properties needed for cart/order logic
 // }
 
@@ -167,7 +183,7 @@
 //             const discount = discountPercentage / 100;
 //             // Recalculate subTotal based on stored quantity and current price/discount
 //             const subTotal = Math.round(price * item.quantity * (1 - discount) * 100) / 100;
-            
+
 //             return {
 //                 ...item,
 //                 price, // Use product price for consistency
@@ -182,7 +198,6 @@
 //         return { items, itemsPrice: Number(itemsPrice.toFixed(2)), itemsCount };
 //     }
 
-
 //     // --- Public Mutator Methods (Simulating the async user logic) ---
 
 //     async addItem(productId: string, quantity: number = 1): Promise<void> {
@@ -194,13 +209,12 @@
 
 //         const currentItems = this.getItems();
 //         const existingIndex = currentItems.findIndex(i => i.product === productId);
-        
+
 //         let updatedItems: OrderItem[];
-        
+
 //         const price = product.price;
 //         const discountPercentage = product.discountPercentage ?? 0;
 //         const discount = discountPercentage / 100;
-
 
 //         if (existingIndex >= 0) {
 //             const existingItem = currentItems[existingIndex];
@@ -209,7 +223,7 @@
 //             updatedItems = currentItems;
 //         } else {
 //             const subTotal = Math.round(price * quantity * (1 - discount) * 100) / 100;
-//             updatedItems = [...currentItems, { 
+//             updatedItems = [...currentItems, {
 //                 product: product._id,
 //                 name: product.title,
 //                 quantity: quantity,
@@ -230,19 +244,19 @@
 
 //         if (existingIndex >= 0) {
 //             const updatedQuantity = Math.max(1, quantity);
-            
+
 //             if (updatedQuantity === currentItems[existingIndex].quantity) {
 //                 return; // No change
 //             }
 
 //             const item = currentItems[existingIndex];
 //             item.quantity = updatedQuantity;
-            
+
 //             const price = product.price ?? item.price;
 //             const discount = (product.discountPercentage ?? item.discountPercentage ?? 0) / 100;
 
 //             item.subTotal = Math.round(price * item.quantity * (1 - discount) * 100) / 100;
-            
+
 //             this.save(currentItems);
 //         }
 //     }
@@ -275,7 +289,6 @@
 //   }
 // }
 
-
 // // --- USER'S ORDER SERVICE (MOCKED) ---
 
 // /**
@@ -296,7 +309,7 @@
 //             const qty = item.quantity;
 //             const price = productDoc.price;
 //             const discountPercentage = productDoc.discountPercentage ?? 0;
-            
+
 //             const discount = discountPercentage / 100;
 //             const subTotal = Math.round(price * qty * (1 - discount) * 100) / 100;
 
@@ -309,7 +322,7 @@
 //                 name: productDoc.title!,
 //             });
 //         }
-        
+
 //         // Re-calculate shipping/tax based on itemsPrice (simple mock rule)
 //         const normalizedShipping = itemsPrice > 100 ? 0 : 15.00;
 //         const normalizedTax = Math.round(itemsPrice * 0.10 * 100) / 100; // 10% tax
@@ -370,7 +383,7 @@
 //      */
 //     async updateOrderToPaid(orderId: string, paymentResult: PaymentResult): Promise<Order> {
 //         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
 //         // Mock successful payment update (real logic would fetch the order and update it)
 //         const paidOrder: Order = {
 //             _id: orderId,
@@ -444,7 +457,7 @@
 
 //         <div class="min-h-screen bg-gray-50 font-sans p-4 md:p-8">
 //             <div class="max-w-6xl mx-auto shadow-2xl rounded-2xl bg-white overflow-hidden">
-                
+
 //                 <!-- Header -->
 //                 <header class="bg-gray-800 p-5 text-white flex justify-between items-center">
 //                     <h1 class="text-2xl font-bold tracking-tight">E-Commerce Checkout</h1>
@@ -454,12 +467,12 @@
 //                 </header>
 
 //                 <div class="p-6 md:p-10 lg:grid lg:grid-cols-3 lg:gap-10">
-                    
+
 //                     <!-- LEFT COLUMN: Cart Summary & Totals -->
 //                     <div class="lg:col-span-1 mb-8 lg:mb-0">
 //                         <h2 class="text-xl font-semibold mb-4 text-gray-700">Order Summary</h2>
 //                         <div class="bg-gray-100 p-5 rounded-xl shadow-inner">
-                            
+
 //                             <!-- Cart Items List -->
 //                             <div *ngIf="!cartSummary.isEmpty; else emptyCart">
 //                                 <div *ngFor="let item of cartSummary.items" class="flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0">
@@ -468,7 +481,7 @@
 //                                         <div class="flex-grow">
 //                                             <p class="font-medium text-gray-800">{{ item.name }}</p>
 //                                             <p class="text-sm text-gray-500">
-//                                                 {{ item.price | currency:'USD':'symbol' }} x {{ item.quantity }} 
+//                                                 {{ item.price | currency:'USD':'symbol' }} x {{ item.quantity }}
 //                                                 <span *ngIf="item.discountPercentage" class="text-red-500 text-xs"> ({{ item.discountPercentage }}% off)</span>
 //                                             </p>
 //                                         </div>
@@ -514,7 +527,7 @@
 //                                     <span class="font-medium text-gray-800">{{ currentOrder?.taxPrice ? (currentOrder.taxPrice | currency:'USD':'symbol') : '---' }}</span>
 //                                 </div>
 //                             </div>
-                            
+
 //                             <!-- Grand Total -->
 //                             <div class="mt-4 pt-4 border-t border-gray-300 flex justify-between items-center">
 //                                 <span class="text-lg font-bold text-gray-800">Order Total</span>
@@ -522,16 +535,16 @@
 //                             </div>
 //                         </div>
 //                     </div>
-                    
+
 //                     <!-- RIGHT COLUMN: Checkout Steps -->
 //                     <div class="lg:col-span-2">
-                        
+
 //                         <!-- Step 1: Cart View -->
 //                         <div *ngIf="view === 'cart'">
 //                             <h2 class="text-xl font-semibold mb-6 text-gray-700">1. Review Your Cart</h2>
 //                             <div class="flex justify-end">
-//                                 <button 
-//                                     (click)="goToShipping()" 
+//                                 <button
+//                                     (click)="goToShipping()"
 //                                     [disabled]="cartSummary.isEmpty"
 //                                     class="px-6 py-3 bg-teal-600 text-white font-semibold rounded-xl shadow-lg hover:bg-teal-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
 //                                     Proceed to Shipping ({{ cartSummary.itemsPrice | currency:'USD':'symbol' }})
@@ -542,9 +555,9 @@
 //                         <!-- Step 2: Shipping Form -->
 //                         <div *ngIf="view === 'shipping'">
 //                             <h2 class="text-xl font-semibold mb-6 text-gray-700">2. Shipping & Payment Method</h2>
-                            
+
 //                             <form [formGroup]="shippingForm" (ngSubmit)="createOrderAndGoToNextStep()" class="space-y-8">
-                                
+
 //                                 <div class="p-6 border border-gray-200 rounded-xl space-y-4">
 //                                     <h3 class="text-lg font-medium text-gray-800">Shipping Details</h3>
 //                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -576,7 +589,7 @@
 //                                 <!-- Payment Method Selection -->
 //                                 <div class="p-6 border border-gray-200 rounded-xl space-y-4">
 //                                     <h3 class="text-lg font-medium text-gray-800">Payment Method</h3>
-                                    
+
 //                                     <div class="space-y-3">
 //                                         <label class="flex items-center p-4 bg-white border border-gray-300 rounded-xl cursor-pointer hover:border-teal-500 transition">
 //                                             <input type="radio" formControlName="paymentMethod" value="stripe" class="h-4 w-4 text-teal-600 border-gray-300 focus:ring-teal-500">
@@ -593,7 +606,6 @@
 
 //                                     <p *ngIf="shippingForm.get('paymentMethod')?.invalid && shippingForm.get('paymentMethod')?.touched" class="text-red-500 text-xs mt-1">Payment method is required.</p>
 //                                 </div>
-
 
 //                                 <div class="flex justify-between pt-4">
 //                                     <button (click)="view = 'cart'" type="button" class="text-sm text-gray-600 hover:text-teal-600 transition">
@@ -616,7 +628,7 @@
 //                         <!-- Step 3: Payment (Stripe Only) -->
 //                         <div *ngIf="view === 'payment' && currentOrder">
 //                             <h2 class="text-xl font-semibold mb-6 text-gray-700">3. Complete Your Purchase</h2>
-                            
+
 //                             <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg">
 //                                 <p class="font-medium">Total Charge: {{ currentOrder.totalPrice | currency:'USD':'symbol' }}</p>
 //                                 <p class="text-sm">Please use test cards like 4242... for the Stripe integration below.</p>
@@ -626,7 +638,7 @@
 //                             <div id="payment-element-container" class="mb-6">
 //                                 <!-- The Stripe Payment Element will be mounted here -->
 //                             </div>
-                            
+
 //                             <div class="flex justify-between pt-4">
 //                                 <button (click)="view = 'shipping'" type="button" [disabled]="isProcessing" class="text-sm text-gray-600 hover:text-teal-600 transition">
 //                                     &larr; Back to Shipping
@@ -651,11 +663,11 @@
 //                             <div class="text-center py-16 rounded-xl" [ngClass]="{'bg-green-50': finalOrder?.isPaid, 'bg-blue-50': finalOrder?.paymentMethod === 'cash_on_delivery'}">
 //                                 <svg *ngIf="finalOrder?.isPaid" class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 //                                 <svg *ngIf="finalOrder?.paymentMethod === 'cash_on_delivery'" class="w-16 h-16 mx-auto text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2v5m0-5h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                
+
 //                                 <h2 class="text-3xl font-bold mt-4" [ngClass]="{'text-green-700': finalOrder?.isPaid, 'text-blue-700': finalOrder?.paymentMethod === 'cash_on_delivery'}">
 //                                     Order Placed Successfully!
 //                                 </h2>
-                                
+
 //                                 <p *ngIf="finalOrder?.isPaid" class="text-gray-600 mt-2">
 //                                     Payment via Stripe Confirmed.
 //                                 </p>
@@ -664,7 +676,7 @@
 //                                 </p>
 
 //                                 <p class="text-sm text-gray-500 mt-1">Order ID: {{ finalOrder?._id }}</p>
-                                
+
 //                                 <button (click)="startNewOrder()" class="mt-8 px-6 py-3 bg-teal-600 text-white font-semibold rounded-xl hover:bg-teal-700 transition duration-300">
 //                                     Start New Order
 //                                 </button>
@@ -695,11 +707,11 @@
 //     finalOrder: Order | null = null;
 
 //     // Cart State from Service Listener
-//     cartSummary: { items: OrderItem[], itemsPrice: number, itemsCount: number, isEmpty: boolean } = { 
-//         items: [], 
-//         itemsPrice: 0, 
-//         itemsCount: 0, 
-//         isEmpty: true 
+//     cartSummary: { items: OrderItem[], itemsPrice: number, itemsCount: number, isEmpty: boolean } = {
+//         items: [],
+//         itemsPrice: 0,
+//         itemsCount: 0,
+//         isEmpty: true
 //     };
 
 //     // Shipping and Payment Form
@@ -896,9 +908,9 @@
 //                     status: paymentIntent.status,
 //                     update_time: new Date().toISOString(),
 //                 };
-                
+
 //                 const paidOrder = await this.orderService.updateOrderToPaid(this.currentOrder._id, paymentResult);
-                
+
 //                 // Finalize success state
 //                 this.finalOrder = paidOrder;
 //                 this.cartService.clear();

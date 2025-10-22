@@ -1,11 +1,12 @@
 export interface User {
-    _id? : string,
-    name? : string,
-    email? : string,
-    password? : string,
-    token? : string,
-    createdAt? : string,
-    updatedAt? : string
+  _id?: string;
+  name?: string;
+  email?: string;
+  password?: string;
+  token?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  role: 'user' | 'admin';
 }
 
 export interface LoginPayload {
