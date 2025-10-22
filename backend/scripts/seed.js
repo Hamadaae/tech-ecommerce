@@ -1,7 +1,9 @@
-require('dotenv').config();
-const axios = require('axios');
-const connectDB = require('../src/config/db');
-const Product = require('../src/models/Product');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import axios from 'axios';
+import connectDB from '../src/config/db.js';
+import Product from '../src/models/Product.js';
 
 const categories = [
   { name: 'laptops', url: 'https://dummyjson.com/products/category/laptops' },
@@ -19,7 +21,7 @@ function normalizeProduct(product, fallBackCategory) {
   const reviews = (product.reviews || []).map(review => ({
     rating: review.rating,
     comment: review.comment,
-    date: review.date ? new Date(review.date) : null, // ✅ fixed
+    date: review.date ? new Date(review.date) : null,
     reviewerName: review.reviewerName,
     reviewerEmail: review.reviewerEmail
   }));
@@ -32,7 +34,7 @@ function normalizeProduct(product, fallBackCategory) {
     externalId: product.id,
     title: product.title,
     description: product.description,
-    category: product.category || fallBackCategory || '', // ✅ fixed p.category → product.category
+    category: product.category || fallBackCategory || '',
     price: typeof product.price === 'number' ? product.price : Number(product.price || 0),
     discountPercentage: product.discountPercentage,
     rating: product.rating,
