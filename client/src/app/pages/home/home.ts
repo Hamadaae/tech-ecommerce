@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 import { loadProducts } from '../../store/products/product.actions';
 import { selectAllProducts } from '../../store/products/product.selectors';
@@ -10,97 +13,144 @@ import { selectAllProducts } from '../../store/products/product.selectors';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatCardModule],
   templateUrl: './home.html'
 })
-export class Home implements OnInit, OnDestroy {
+export class Home implements OnInit {
   products$: Observable<any[]>;
 
-  // slider state
-  slides: { title: string; subtitle?: string; cta?: string; image: string; href?: string }[] = [];
-  currentSlide = 0;
-  autoplayIntervalMs = 5000;
-  private autoplayHandle: any = null;
+  newProducts = [
+    {
+      id: 1,
+      name: 'MSI GF63 Thin Gaming Laptop',
+      price: 499.00,
+      rating: 4.5,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Laptop',
+      category: 'Laptops'
+    },
+    {
+      id: 2,
+      name: 'MSI Gaming Desktop Pro',
+      price: 899.00,
+      rating: 4.7,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Desktop',
+      category: 'Desktops'
+    },
+    {
+      id: 3,
+      name: 'MSI Gaming Monitor 27"',
+      price: 299.00,
+      rating: 4.6,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Monitor',
+      category: 'Monitors'
+    },
+    {
+      id: 4,
+      name: 'MSI Creator Laptop',
+      price: 1299.00,
+      rating: 4.8,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Creator',
+      category: 'Laptops'
+    },
+    {
+      id: 5,
+      name: 'MSI Workstation PC',
+      price: 1499.00,
+      rating: 4.9,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Workstation',
+      category: 'Desktops'
+    },
+    {
+      id: 6,
+      name: 'MSI Curved Monitor 32"',
+      price: 399.00,
+      rating: 4.7,
+      image: 'https://placehold.co/400x300/222/fff?text=MSI+Curved',
+      category: 'Monitors'
+    }
+  ];
 
+
+
+  categories = [
+    {
+      title: 'Gaming Laptops',
+      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Laptops',
+      link: '/category/laptops'
+    },
+    {
+      title: 'Gaming Desktops',
+      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Desktops',
+      link: '/category/desktops'
+    },
+    {
+      title: 'Gaming Monitors',
+      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Monitors',
+      link: '/category/monitors'
+    }
+  ];
+
+  testimonials = [
+    {
+      text: 'My first order arrived today in perfect condition. From the time I sent a question about the item to making the purchase, to the shipping and now the delivery, your company, has stayed in touch. Such great service. I look forward to shopping on your site in the future and would highly recommend it.',
+      author: 'Tony Brown'
+    }
+  ];
+
+  brands = [
+    'https://placehold.co/200x80/222/fff?text=ROCCAT',
+    'https://placehold.co/200x80/222/fff?text=MSI',
+    'https://placehold.co/200x80/222/fff?text=RAZER',
+    'https://placehold.co/200x80/222/fff?text=THERMALTAKE',
+    'https://placehold.co/200x80/222/fff?text=ADATA',
+    'https://placehold.co/200x80/222/fff?text=HP',
+    'https://placehold.co/200x80/222/fff?text=GIGABYTE'
+  ];
+
+  // single constructor: initialize store and sample products
   constructor(private store: Store) {
     this.products$ = this.store.select(selectAllProducts);
+
+    // Add more products (local sample items)
+    this.newProducts = [
+      ...this.newProducts,
+      {
+        id: 2,
+        name: 'MSI Gaming Desktop',
+        price: 899.0,
+        rating: 4.7,
+        image: 'assets/products/desktop-1.png',
+        category: 'Desktops'
+      },
+      {
+        id: 3,
+        name: 'MSI Gaming Monitor',
+        price: 299.0,
+        rating: 4.6,
+        image: 'assets/products/monitor-1.png',
+        category: 'Monitors'
+      },
+      {
+        id: 4,
+        name: 'MSI Creator Laptop',
+        price: 1299.0,
+        rating: 4.8,
+        image: 'assets/products/laptop-2.png',
+        category: 'Laptops'
+      },
+      {
+        id: 5,
+        name: 'MSI Workstation',
+        price: 1499.0,
+        rating: 4.9,
+        image: 'assets/products/desktop-2.png',
+        category: 'Desktops'
+      }
+    ];
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadProducts());
-
-    this.products$.subscribe(products => {
-      const thumbs = (products || [])
-        .filter(p => p?.thumbnail)
-        .slice(0, 3)
-        .map(p => ({
-          title: p.title || 'Product',
-          subtitle: p.category || '',
-          cta: 'Shop Now',
-          image: p.thumbnail,
-          href: `/products/${p.externalId ?? p._id ?? ''}`
-        }));
-
-      this.slides = thumbs.length > 0 ? thumbs : [
-        {
-          title: 'Big Tech Deals',
-          subtitle: 'Up to 40% off selected items',
-          cta: 'Shop Deals',
-          image: '/assets/hero-1.jpg',
-          href: '/products'
-        },
-        {
-          title: 'New Arrivals',
-          subtitle: 'Latest gadgets from top brands',
-          cta: 'Explore New',
-          image: '/assets/hero-2.jpg',
-          href: '/products'
-        },
-        {
-          title: 'Trending Now',
-          subtitle: 'What customers are loving this week',
-          cta: 'See Trending',
-          image: '/assets/hero-3.jpg',
-          href: '/products'
-        }
-      ];
-
-      this.stopAutoplay();
-      this.startAutoplay();
-    });
   }
 
-  ngOnDestroy(): void {
-    this.stopAutoplay();
-  }
-
-  prev() {
-    this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
-  }
-
-  next() {
-    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
-  }
-
-  goTo(index: number) {
-    if (index >= 0 && index < this.slides.length) this.currentSlide = index;
-  }
-
-  startAutoplay() {
-    if (this.autoplayHandle != null) return;
-    this.autoplayHandle = setInterval(() => {
-      this.next();
-    }, this.autoplayIntervalMs);
-  }
-
-  stopAutoplay() {
-    if (this.autoplayHandle != null) {
-      clearInterval(this.autoplayHandle);
-      this.autoplayHandle = null;
-    }
-  }
-
-  featured(products: any[] | null, count = 6) {
-    return products ? products.slice(0, count) : [];
-  }
 }

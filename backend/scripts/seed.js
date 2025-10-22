@@ -1,7 +1,7 @@
-require('dotenv').config();
-const axios = require('axios');
-const connectDB = require('../src/config/db');
-const Product = require('../src/models/Product');
+import 'dotenv/config';
+import axios from 'axios';
+import connectDB from '../src/config/db.js';
+import Product from '../src/models/Product.js';
 
 const categories = [
   { name: 'laptops', url: 'https://dummyjson.com/products/category/laptops' },

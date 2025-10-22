@@ -28,6 +28,7 @@ const productSchema = new mongoose.Schema({
     category : { type : String , required : true },
     price : { type : Number},
     discountPercentage : { type : Number},
+    image : { type : String },
     rating : { type : Number},
     stock : { type : Number , required : true , min : 0 , default : 0 },
     tags : [ String ],
