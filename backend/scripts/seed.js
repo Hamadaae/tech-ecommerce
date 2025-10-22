@@ -19,7 +19,7 @@ function normalizeProduct(product, fallBackCategory) {
   const reviews = (product.reviews || []).map(review => ({
     rating: review.rating,
     comment: review.comment,
-    date: review.date ? new Date(review.date) : null, // ✅ fixed
+    date: review.date ? new Date(review.date) : null,
     reviewerName: review.reviewerName,
     reviewerEmail: review.reviewerEmail
   }));
@@ -32,7 +32,7 @@ function normalizeProduct(product, fallBackCategory) {
     externalId: product.id,
     title: product.title,
     description: product.description,
-    category: product.category || fallBackCategory || '', // ✅ fixed p.category → product.category
+    category: product.category || fallBackCategory || '',
     price: typeof product.price === 'number' ? product.price : Number(product.price || 0),
     discountPercentage: product.discountPercentage,
     rating: product.rating,
