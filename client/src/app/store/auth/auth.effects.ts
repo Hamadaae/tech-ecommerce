@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of, EMPTY } from 'rxjs';
+import { of } from 'rxjs';
 import { mergeMap, map, catchError, tap, switchMap, filter } from 'rxjs/operators';
 import * as AuthActions from './auth.actions';
 import { AuthService, AuthResponse } from '../../core/services/auth.service';
@@ -14,6 +14,7 @@ export class AuthEffect {
 
   constructor() {}
 
+  // 🔹 تسجيل الدخول
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
@@ -37,6 +38,7 @@ export class AuthEffect {
     )
   );
 
+  // 🔹 عند نجاح تسجيل الدخول → توجيه حسب نوع المستخدم
   loginSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -44,12 +46,19 @@ export class AuthEffect {
         tap(({ user, token }) => {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigate(['/']);
+
+          // ✅ توجيه حسب الدور
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         })
       ),
     { dispatch: false }
   );
 
+  // 🔹 تحميل المستخدم من localStorage عند بداية التطبيق
   init$ = createEffect(() =>
     this.actions$.pipe(
       ofType('@ngrx/store/init', '@ngrx/effects/init'),
@@ -63,15 +72,19 @@ export class AuthEffect {
       filter(() => !!localStorage.getItem('token')),
       switchMap(() =>
         this.authService.getMe().pipe(
-          map((user) => AuthActions.loginSuccess({ user, token: localStorage.getItem('token')! })),
-          catchError(() => {
-            return of(AuthActions.logout());
-          })
+          map((user) =>
+            AuthActions.loginSuccess({
+              user,
+              token: localStorage.getItem('token')!,
+            })
+          ),
+          catchError(() => of(AuthActions.logout()))
         )
       )
     )
   );
 
+  // 🔹 تسجيل الخروج
   logout$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -85,13 +98,17 @@ export class AuthEffect {
     { dispatch: false }
   );
 
+  // 🔹 التسجيل (Register)
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
       mergeMap(({ data }) =>
         this.authService.register(data).pipe(
           map((response: AuthResponse) =>
-            AuthActions.registerSuccess({ user: response.user, token: response.token })
+            AuthActions.registerSuccess({
+              user: response.user,
+              token: response.token,
+            })
           ),
           catchError((error: any) =>
             of(
@@ -104,6 +121,8 @@ export class AuthEffect {
       )
     )
   );
+
+  // 🔹 عند نجاح التسجيل → توجيه حسب نوع المستخدم
   registerSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -111,7 +130,13 @@ export class AuthEffect {
         tap(({ user, token }) => {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigate(['/']);
+
+          // ✅ توجيه حسب الدور
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         })
       ),
     { dispatch: false }
