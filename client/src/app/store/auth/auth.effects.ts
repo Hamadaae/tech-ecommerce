@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of, EMPTY } from 'rxjs';
-import { mergeMap, map, catchError, tap, switchMap, filter } from 'rxjs/operators';
+import { of, EMPTY, concat } from 'rxjs';
+import { mergeMap, map, catchError, tap, switchMap } from 'rxjs/operators';
 import * as AuthActions from './auth.actions';
 import { AuthService, AuthResponse } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
@@ -57,18 +57,28 @@ export class AuthEffect {
     )
   );
 
+  // Immediately restore auth state from localStorage, then attempt to refresh user from server.
   loadUserFromStorage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loadUserFromStorage),
-      filter(() => !!localStorage.getItem('token')),
-      switchMap(() =>
-        this.authService.getMe().pipe(
-          map((user) => AuthActions.loginSuccess({ user, token: localStorage.getItem('token')! })),
-          catchError(() => {
-            return of(AuthActions.logout());
-          })
-        )
-      )
+      switchMap(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return EMPTY;
+
+        const userStr = localStorage.getItem('user');
+        const storedUser = userStr ? JSON.parse(userStr) : null;
+
+        // restore state synchronously from storage
+        const restoreAction = AuthActions.loginSuccess({ user: storedUser, token });
+
+        // attempt to refresh user from API; on error do not force logout (avoid removing valid token on transient errors)
+        const refresh$ = this.authService.getMe().pipe(
+          map((user) => AuthActions.loginSuccess({ user, token })),
+          catchError(() => EMPTY)
+        );
+
+        return concat(of(restoreAction), refresh$);
+      })
     )
   );
 

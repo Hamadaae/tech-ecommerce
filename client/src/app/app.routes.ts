@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectAuthLoading } from './store/auth/auth.selectors';
 import { filter, map } from 'rxjs/operators';
+import { productsRoutes } from './pages/products/products.routes';
 
 const isAppReadyGuard = () => {
   const store = inject(Store);
@@ -27,7 +28,8 @@ export const routes: Routes = [
   },
   {
     path: 'products',
-    loadChildren: () => import('./pages/products/products.routes').then((m) => m.productsRoutes),
+    // keep children (standalone route config) — remove loadChildren to avoid conflicts
+    children: productsRoutes,
     canActivate: [isAppReadyGuard],
   },
   {
@@ -59,11 +61,6 @@ export const routes: Routes = [
       },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
-  },
-  {
-    path: 'cart',
-    loadComponent: () => import('./pages/cart/cart').then((m) => m.Cart),
-    canActivate: [isAppReadyGuard, AuthGuard],
   },
   {
     path: 'admin',
