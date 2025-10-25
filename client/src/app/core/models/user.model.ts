@@ -5,7 +5,8 @@ export interface User {
     password? : string,
     token? : string,
     createdAt? : string,
-    updatedAt? : string
+    updatedAt? : string,
+    role? : 'user' | 'admin'
 }
 
 export interface LoginPayload {
@@ -17,4 +18,10 @@ export interface RegisterPayload {
     name : string,
     email : string,
     password : string
+}
+
+export interface UserUpdatePayload {
+    name? : string,
+    email? : string,
+    password? : string
 }

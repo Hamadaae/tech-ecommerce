@@ -28,7 +28,6 @@ export interface Product {
     price? : number,
     discountPercentage? : number,
     rating? : number,
-    image? : string,
     stock? : number,
     tags? : string[],
     brand? : string,

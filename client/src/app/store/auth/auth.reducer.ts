@@ -48,5 +48,23 @@ export const authReducer = createReducer(
     ...state,
     loading: false,
     error,
-  }))
+  })),
+
+
+   on(AuthActions.updateUser, (state) => ({ ...state, loading: true, error: null })),
+  on(AuthActions.updateUserSuccess, (state, { user }) => {
+    localStorage.setItem('user', JSON.stringify(user)); 
+    return {
+      ...state,
+      loading: false,
+      error: null,
+    };
+  }),
+  on(AuthActions.updateUserFailure, (state, { error }) => ({ ...state, loading: false, error })),
+
+  on(AuthActions.deleteUser, (state) => ({ ...state, loading: true, error: null })),
+  on(AuthActions.deleteUserSuccess, () => {
+    return initialState; 
+  }),
+  on(AuthActions.deleteUserFailure, (state, { error }) => ({ ...state, loading: false, error })),
 );

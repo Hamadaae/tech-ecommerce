@@ -31,14 +31,8 @@ export const getProductById = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const productData = req.body;
     
-    // If there's a file uploaded, add the image path
-    if (req.file) {
-      productData.image = `/uploads/products/${req.file.filename}`;
-    }
-    
-    const newProduct = new Product(productData);
+    const newProduct = new Product(req.body);
     await newProduct.save();
     return res.status(201).json(newProduct);
   } catch (error) {
