@@ -7,6 +7,10 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): boolean {
     const token = localStorage.getItem('token');
+
+    // if (token) return true;
+    // return this.router.parseUrl('/auth/login');
+
     const user = localStorage.getItem('user');
     if (!token || !user) {
       this.router.navigate(['/auth/login']);
@@ -21,5 +25,6 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
+
   }
 }

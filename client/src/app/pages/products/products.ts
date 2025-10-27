@@ -54,4 +54,9 @@ export class ProductsComponent implements OnInit {
     this.cartService.addItem(cartItem);
     console.log(`Added ${product.title} to cart.`);
   }
+
+  trackByProductId(index: number, product: any): string | number {
+    // prefer MongoDB _id, fallback to id or index
+    return product?._id ?? product?.id ?? index;
+  }
 }

@@ -94,6 +94,7 @@ export const me = async (req, res, next) => {
   }
 };
 
+
 export const updateUser = async (req, res, next) => {
   try {
     const userId = req.user?.id;

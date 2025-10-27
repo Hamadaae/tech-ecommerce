@@ -49,13 +49,13 @@ export const authReducer = createReducer(
     loading: false,
     error,
   })),
-  
-  on(AuthActions.updateUser, (state) => ({ ...state, loading: true, error: null })),
+
+
+   on(AuthActions.updateUser, (state) => ({ ...state, loading: true, error: null })),
   on(AuthActions.updateUserSuccess, (state, { user }) => {
     localStorage.setItem('user', JSON.stringify(user)); 
     return {
       ...state,
-      user, 
       loading: false,
       error: null,
     };

@@ -11,8 +11,8 @@ router.get('/categories', getCategories)
 router.get('/:id', getProductById)
 
 // Private/Protected Routes
-router.post('/', authMiddleware ,createProduct)
-router.put('/:id', authMiddleware , updateProduct)
-router.delete('/:id', authMiddleware , deleteProduct)
+router.post('/', authMiddleware, createProduct)
+router.put('/:id', authMiddleware, updateProduct)
+router.delete('/:id', authMiddleware, deleteProduct)
 
 export default router

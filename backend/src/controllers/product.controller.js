@@ -31,6 +31,7 @@ export const getProductById = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
+    
     const newProduct = new Product(req.body);
     await newProduct.save();
     return res.status(201).json(newProduct);
