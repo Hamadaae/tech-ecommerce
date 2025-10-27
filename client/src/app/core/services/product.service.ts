@@ -18,8 +18,8 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/${id}`)
   }
 
-  getCategories(): Observable<string[]>{
-    return this.http.get<string[]>(`${this.apiUrl}/categories`)
+  getCategories(): Observable<{category : string , count : number}>{
+    return this.http.get<{category : string , count : number}>(`${this.apiUrl}/categories`)
   }
 
   createProduct(product: any): Observable<any> {
