@@ -9,7 +9,11 @@ export class ProductEffects {
   private actions$ = inject(Actions);
   private productService = inject(ProductService);
 
+<<<<<<< HEAD
   constructor() {}
+=======
+  constructor() {} 
+>>>>>>> 12d7094c63bfa985490eec18dded0e157d1120e5
 
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
@@ -54,12 +58,14 @@ export class ProductEffects {
       )
     )
   );
+<<<<<<< HEAD
   // --- CREATE EFFECT ---
+=======
+>>>>>>> 12d7094c63bfa985490eec18dded0e157d1120e5
 
   createProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.createProduct),
-      // switchMap is generally better for CUD operations to cancel previous requests
       switchMap(({ product }) =>
         this.productService.createProduct(product).pipe(
           map((newProduct) => ProductActions.createProductSuccess({ product: newProduct })),
@@ -75,14 +81,11 @@ export class ProductEffects {
     )
   );
 
-  // --- UPDATE EFFECT ---
-
   updateProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.updateProduct),
       switchMap(({ id, changes }) =>
         this.productService.updateProduct(id, changes).pipe(
-          // Assuming the backend returns the *fully* updated product
           map((updatedProduct) => ProductActions.updateProductSuccess({ product: updatedProduct })),
           catchError((error) =>
             of(
@@ -96,14 +99,11 @@ export class ProductEffects {
     )
   );
 
-  // --- DELETE EFFECT ---
-
   deleteProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.deleteProduct),
       switchMap(({ id }) =>
         this.productService.deleteProduct(id).pipe(
-          // On successful deletion, we only need the ID to update the state
           map(() => ProductActions.deleteProductSuccess({ id })),
           catchError((error) =>
             of(

@@ -7,8 +7,6 @@ import { Product } from '../../core/models/product.model';
 export const productReducer = createReducer(
   initialState,
 
-  // --- READ Operations ---
-
   on(ProductActions.loadProducts, (state) => ({
     ...state,
     loading: true,
@@ -44,8 +42,6 @@ export const productReducer = createReducer(
     error,
   })),
 
-  // --- CREATE Operations ---
-
   on(ProductActions.createProduct, (state) => ({
     ...state,
     loading: true,
@@ -62,8 +58,6 @@ export const productReducer = createReducer(
     error,
   })),
 
-  // --- UPDATE Operations ---
-
   on(ProductActions.updateProduct, (state) => ({
     ...state,
     loading: true,
@@ -79,8 +73,6 @@ export const productReducer = createReducer(
     loading: false,
     error,
   })),
-
-  // --- DELETE Operations ---
 
   on(ProductActions.deleteProduct, (state) => ({
     ...state,

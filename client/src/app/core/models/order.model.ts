@@ -17,7 +17,7 @@ export interface ShippingAddress {
     country : string
 }
 
-export type PaymentMethod = 'stripe' | 'cash_on_delivery' 
+export type PaymentMethod = 'stripe'  
 
 export interface PaymentResult {
     id? : string,

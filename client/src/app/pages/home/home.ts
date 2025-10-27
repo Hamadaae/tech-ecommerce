@@ -9,6 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 
 import { loadProducts } from '../../store/products/product.actions';
 import { selectAllProducts } from '../../store/products/product.selectors';
+import { CartService } from '../../core/services/cart.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -74,19 +76,24 @@ export class Home implements OnInit {
 
   categories = [
     {
-      title: 'Gaming Laptops',
-      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Laptops',
+      title: 'Smartphones',
+      image: '/assets/categories/smartphones.jpg',
+      link: '/category/smartphones'
+    },
+    {
+      title: 'Tablets',
+      image: '/assets/categories/tablets.jpg',
+      link: '/category/tablets'
+    },
+    {
+      title: 'Laptops',
+      image: '/assets/categories/laptops.jpg',
       link: '/category/laptops'
     },
     {
-      title: 'Gaming Desktops',
-      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Desktops',
-      link: '/category/desktops'
-    },
-    {
-      title: 'Gaming Monitors',
-      image: 'https://placehold.co/800x600/222/fff?text=Gaming+Monitors',
-      link: '/category/monitors'
+      title: 'Mobile Accessories',
+      image: '/assets/categories/accessories.jpg',
+      link: '/category/accessories'
     }
   ];
 
@@ -98,26 +105,25 @@ export class Home implements OnInit {
   ];
 
   brands = [
-    'https://placehold.co/200x80/222/fff?text=ROCCAT',
-    'https://placehold.co/200x80/222/fff?text=MSI',
-    'https://placehold.co/200x80/222/fff?text=RAZER',
-    'https://placehold.co/200x80/222/fff?text=THERMALTAKE',
-    'https://placehold.co/200x80/222/fff?text=ADATA',
-    'https://placehold.co/200x80/222/fff?text=HP',
-    'https://placehold.co/200x80/222/fff?text=GIGABYTE'
+    '/assets/brands/roccat.png',
+    '/assets/brands/msi.png',
+    '/assets/brands/razer.png',
+    '/assets/brands/thermaltake.png',
+    '/assets/brands/adata.png',
+    '/assets/brands/hp.png',
+    '/assets/brands/gigabyte.png'
   ];
 
-  // single constructor: initialize store and sample products
-  constructor(private store: Store) {
+  constructor(private store: Store, private cartService: CartService, private notificationService: NotificationService) {
     this.products$ = this.store.select(selectAllProducts);
 
-    // Add more products (local sample items)
+    // Add more products
     this.newProducts = [
       ...this.newProducts,
       {
         id: 2,
         name: 'MSI Gaming Desktop',
-        price: 899.0,
+        price: 899.00,
         rating: 4.7,
         image: 'assets/products/desktop-1.png',
         category: 'Desktops'
@@ -125,7 +131,7 @@ export class Home implements OnInit {
       {
         id: 3,
         name: 'MSI Gaming Monitor',
-        price: 299.0,
+        price: 299.00,
         rating: 4.6,
         image: 'assets/products/monitor-1.png',
         category: 'Monitors'
@@ -133,7 +139,7 @@ export class Home implements OnInit {
       {
         id: 4,
         name: 'MSI Creator Laptop',
-        price: 1299.0,
+        price: 1299.00,
         rating: 4.8,
         image: 'assets/products/laptop-2.png',
         category: 'Laptops'
@@ -141,16 +147,34 @@ export class Home implements OnInit {
       {
         id: 5,
         name: 'MSI Workstation',
-        price: 1499.0,
+        price: 1499.00,
         rating: 4.9,
         image: 'assets/products/desktop-2.png',
         category: 'Desktops'
       }
     ];
+
+
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadProducts({}));
   }
 
+  async addToCart(product: any) {
+    try {
+      const item = {
+        product: product._id ?? product.id ?? String(product.externalId ?? product.id),
+        title: product.name ?? product.title,
+        price: product.price ?? 0,
+        quantity: 1
+      } as any;
+
+      await this.cartService.addItem(item);
+      this.notificationService.success(`${item.title} added to cart`);
+    } catch (e) {
+      console.error('Add to cart failed', e);
+      this.notificationService.error('Failed to add to cart');
+    }
+  }
 }
