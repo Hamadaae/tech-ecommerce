@@ -3,11 +3,27 @@ import Product from '../models/Product.js';
 
 export const getProducts = async (req, res, next) => {
   try {
-    const { category } = req.query;
+    const { category, page = 1, limit = 10 } = req.query;
     const filter = {};
     if (category) filter.category = category;
-    const products = await Product.find(filter).lean();
-    return res.json(products);
+
+    const skip = (page - 1) * limit;
+    const [products, total] = await Promise.all([
+      Product.find(filter).skip(skip).limit(Number(limit)).lean(),
+      Product.countDocuments(filter)
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return res.json({
+      data: products,
+      meta: {
+        total,
+        page: Number(page),
+        totalPages,
+        limit: Number(limit),
+      },
+    });
   } catch (error) {
     error.statusCode = error.statusCode || 500;
     return next(error);
