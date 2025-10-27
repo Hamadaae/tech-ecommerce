@@ -2,46 +2,62 @@
 import Product from '../models/Product.js';
 
 
+
 export const getProducts = async (req, res, next) => {
   try {
     const {
       category,
-      q,               
-      search,          
-      sort,
+      q,               // legacy query name
+      search,          // preferred search param
+      sort,            // expected format: "price:asc" or "rating:desc"
       page = 1,
       limit = 10,
     } = req.query;
 
-    const numericPage = Math.max(1, parseInt(page));
-    const numericLimit = Math.max(1, parseInt(limit));
+    const numericPage = Math.max(1, parseInt(page, 10) || 1);
+    const numericLimit = Math.max(1, parseInt(limit, 10) || 10);
     const skip = (numericPage - 1) * numericLimit;
 
     const filter = {};
     if (category) filter.category = category;
 
-    const searchTerm = search || q;
+    const searchTerm = (search || q || '').trim();
+    // Build optional sort object from "field:dir"
+    let sortObj = null;
+    if (sort && typeof sort === 'string' && sort.includes(':')) {
+      const [field, dir] = sort.split(':');
+      // default to descending if dir is not 'asc'
+      sortObj = { [field]: dir === 'asc' ? 1 : -1 };
+    }
+
     let query;
-    if (searchTerm && searchTerm.trim() !== '') {
-      query = Product.find(
+    if (searchTerm !== '') {
+      // Use text search. If sortObj exists, apply score first then requested field.
+      const baseQuery = Product.find(
         { $text: { $search: searchTerm } },
         { score: { $meta: 'textScore' } }
-      ).sort({ score: { $meta: 'textScore' } });
-    } else {
-      query = Product.find(filter);
-      let sortObj = { createdAt: -1 };
-      if (sort) {
-        const [field, dir] = sort.split(':');
-        sortObj = { [field]: dir === 'asc' ? 1 : -1 };
+      );
+
+      if (sortObj) {
+        // Put text score first to preserve relevance, then secondary sort
+        query = baseQuery.sort({ score: { $meta: 'textScore' }, ...sortObj });
+      } else {
+        query = baseQuery.sort({ score: { $meta: 'textScore' } });
       }
-      query = query.sort(sortObj);
+    } else {
+      // No search term - regular find with optional category filter and sort
+      query = Product.find(filter);
+      if (sortObj) {
+        query = query.sort(sortObj);
+      } else {
+        // default fallback sort
+        query = query.sort({ createdAt: -1 });
+      }
     }
 
     const [products, total] = await Promise.all([
       query.skip(skip).limit(numericLimit).lean(),
-      Product.countDocuments(
-        searchTerm ? { $text: { $search: searchTerm } } : filter
-      ),
+      Product.countDocuments(searchTerm ? { $text: { $search: searchTerm } } : filter),
     ]);
 
     const totalPages = Math.max(1, Math.ceil(total / numericLimit));

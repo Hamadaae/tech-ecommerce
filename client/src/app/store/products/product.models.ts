@@ -1,6 +1,5 @@
 import { Product } from '../../core/models/product.model';
 
-// Defines the expected structure for pagination data
 export interface PaginationMeta {
   total: number;
   totalPages: number;
@@ -9,7 +8,7 @@ export interface PaginationMeta {
 }
 
 export interface ProductState {
-  products: Product[]; // MUST be an array
+  products: Product[];
   selectedProduct: Product | null;
   meta: PaginationMeta | null; 
   loading: boolean;
@@ -17,10 +16,9 @@ export interface ProductState {
 }
 
 export const initialState: ProductState = {
-  products: [], // Initial state is explicitly an empty array
+  products: [], 
   selectedProduct: null,
   meta: {
-    // Provide a default meta object structure to avoid null checks in the reducer/component logic
     total: 0,
     totalPages: 1,
     page: 1,

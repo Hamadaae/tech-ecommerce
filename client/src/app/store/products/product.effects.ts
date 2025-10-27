@@ -9,9 +9,7 @@ export class ProductEffects {
   private actions$ = inject(Actions);
   private productService = inject(ProductService);
 
-  constructor() {} 
-
-  // --- READ EFFECTS ---
+  constructor() {}
 
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
@@ -28,7 +26,7 @@ export class ProductEffects {
             of(
               ProductActions.loadProductsFailure({
                 error:
-                  error?.error?.message ||
+                  (error && error.error && error.error.message) ||
                   error?.message ||
                   'Failed to load products',
               })
@@ -46,13 +44,16 @@ export class ProductEffects {
         this.productService.getProductById(id).pipe(
           map((product) => ProductActions.loadProductSuccess({ product })),
           catchError((error) =>
-            of(ProductActions.loadProductFailure({ error: error.message || 'Failed to load product' }))
+            of(
+              ProductActions.loadProductFailure({
+                error: error?.message || 'Failed to load product',
+              })
+            )
           )
         )
       )
     )
   );
-
   // --- CREATE EFFECT ---
 
   createProduct$ = createEffect(() =>
@@ -63,7 +64,11 @@ export class ProductEffects {
         this.productService.createProduct(product).pipe(
           map((newProduct) => ProductActions.createProductSuccess({ product: newProduct })),
           catchError((error) =>
-            of(ProductActions.createProductFailure({ error: error.message || 'Failed to create product' }))
+            of(
+              ProductActions.createProductFailure({
+                error: error.message || 'Failed to create product',
+              })
+            )
           )
         )
       )
@@ -80,7 +85,11 @@ export class ProductEffects {
           // Assuming the backend returns the *fully* updated product
           map((updatedProduct) => ProductActions.updateProductSuccess({ product: updatedProduct })),
           catchError((error) =>
-            of(ProductActions.updateProductFailure({ error: error.message || 'Failed to update product' }))
+            of(
+              ProductActions.updateProductFailure({
+                error: error.message || 'Failed to update product',
+              })
+            )
           )
         )
       )
@@ -97,7 +106,11 @@ export class ProductEffects {
           // On successful deletion, we only need the ID to update the state
           map(() => ProductActions.deleteProductSuccess({ id })),
           catchError((error) =>
-            of(ProductActions.deleteProductFailure({ error: error.message || 'Failed to delete product' }))
+            of(
+              ProductActions.deleteProductFailure({
+                error: error.message || 'Failed to delete product',
+              })
+            )
           )
         )
       )

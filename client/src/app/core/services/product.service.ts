@@ -16,7 +16,13 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(page = 1, limit = 10, category?: string, search?: string, sort?: string): Observable<PaginatedProductsResponse> {
+  getProducts(
+    page = 1,
+    limit = 10,
+    category?: string,
+    search?: string,
+    sort?: string
+  ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('page', String(page))
       .set('limit', String(limit));
@@ -28,23 +34,23 @@ export class ProductService {
     return this.http.get<PaginatedProductsResponse>(this.apiUrl, { params });
   }
 
-  getProductById(id: string): Observable<Product> {
+  getProductById(id: string) {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
-  getCategories(): Observable<{category : string , count : number}[]> {
-    return this.http.get<{category : string , count : number}[]>(`${this.apiUrl}/categories`);
+  getCategories() {
+    return this.http.get<{ category: string; count: number }[]>(`${this.apiUrl}/categories`);
   }
 
-  createProduct(product: any): Observable<any> {
+  createProduct(product: any) {
     return this.http.post<any>(this.apiUrl, product);
   }
 
-  updateProduct(id: string, product: any): Observable<any> {
+  updateProduct(id: string, product: any) {
     return this.http.put<any>(`${this.apiUrl}/${id}`, product);
   }
 
-  deleteProduct(id: string): Observable<any> {
+  deleteProduct(id: string) {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
