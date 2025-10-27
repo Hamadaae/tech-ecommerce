@@ -19,12 +19,10 @@ export class OrderService {
     });
   }
 
-  createOrder(orderData : Partial<Order>): Observable<{order : Order; clientSecret? : string}> {
-        return this.http.post<{order : Order ; clientSecret? : string}>(
-            this.apiUrl, 
-            orderData, 
-            { headers: this.getAuthHeaders() }
-        );
+  createOrder(orderData: Partial<Order>): Observable<{ order: Order; clientSecret?: string }> {
+    return this.http.post<{ order: Order; clientSecret?: string }>(this.apiUrl, orderData, {
+      headers: this.getAuthHeaders(),
+    });
   }
 
   getMyOrders(): Observable<Order[]> {
@@ -33,7 +31,7 @@ export class OrderService {
     });
   }
 
-  getOrderById(orderId : string): Observable<Order> {
+  getOrderById(orderId: string): Observable<Order> {
     return this.http.get<Order>(`${this.apiUrl}/${orderId}`, {
       headers: this.getAuthHeaders(),
     });
@@ -47,16 +45,16 @@ export class OrderService {
     );
   }
 
-  getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.apiUrl, {
+  getAllOrders(): Observable<{ data: Order[]; meta: any }> {
+    return this.http.get<{ data: Order[]; meta: any }>(this.apiUrl, {
       headers: this.getAuthHeaders(),
     });
   }
 
-  updateOrderStatus(orderId: string, status: string): Observable<Order> {
+  updateOrderStatus(orderId: string, isDelivered: boolean): Observable<Order> {
     return this.http.put<Order>(
       `${this.apiUrl}/${orderId}/status`,
-      { status },
+      { isDelivered },
       { headers: this.getAuthHeaders() }
     );
   }
@@ -66,5 +64,4 @@ export class OrderService {
       headers: this.getAuthHeaders(),
     });
   }
-
 }

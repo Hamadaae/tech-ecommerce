@@ -45,12 +45,4 @@ export class AuthService {
     return this.http.delete<{ message: string }>(`${AUTH_API}/users/${userId}`);
   }
 
-  updateUser(userId: string, data: UserUpdatePayload): Observable<User> {
-    return this.http.put<User>(`${AUTH_API}/${userId}`, data);
-  }
-
-   deleteUser(userId: string): Observable<any> {
-    return this.http.delete<any>(`${AUTH_API}/${userId}`);
-  }
-
 }

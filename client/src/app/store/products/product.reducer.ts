@@ -1,20 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import * as ProductActions from './product.actions';
+// Import ProductState and initialState from the models file to ensure one source of truth
+import { initialState, ProductState } from './product.models'; 
 import { Product } from '../../core/models/product.model';
-
-export interface ProductState {
-  products: Product[];
-  selectedProduct: Product | null;
-  loading: boolean;
-  error: string | null;
-}
-
-export const initialState: ProductState = {
-  products: [],
-  selectedProduct: null,
-  loading: false,
-  error: null,
-};
 
 export const productReducer = createReducer(
   initialState,
@@ -24,11 +12,14 @@ export const productReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(ProductActions.loadProductsSuccess, (state, { products }) => ({
+
+  on(ProductActions.loadProductsSuccess, (state, { products, meta }) => ({
     ...state,
-    products,
     loading: false,
+    products,
+    meta: meta, 
   })),
+
   on(ProductActions.loadProductsFailure, (state, { error }) => ({
     ...state,
     loading: false,

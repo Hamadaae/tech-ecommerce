@@ -72,7 +72,7 @@ export const loadAllOrdersFailure = createAction(
 
 export const updateOrderStatus = createAction(
   '[Order] Update Order Status',
-  props<{ orderId: string; status: string }>()
+  props<{ orderId: string; isDelivered: boolean }>()
 );
 
 export const updateOrderStatusSuccess = createAction(

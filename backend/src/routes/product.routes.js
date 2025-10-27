@@ -9,6 +9,7 @@ const router = express.Router()
 router.get('/', getProducts)
 router.get('/categories', getCategories)
 router.get('/:id', getProductById)
+// router.get('/search', searchProducts);
 
 // Private/Protected Routes
 router.post('/', authMiddleware, createProduct)

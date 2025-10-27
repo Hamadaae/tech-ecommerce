@@ -48,7 +48,7 @@ const productSchema = new mongoose.Schema({
     updatedAt : { type : Date , default : Date.now }
 });
 
-productSchema.index({title : 'text', description : 'text', brand : 'text', tags : 'text'});
+productSchema.index({ title: 'text', description: 'text', brand: 'text' });
 
 productSchema.pre('save', function(next){
     this.updatedAt = Date.now();
@@ -56,10 +56,14 @@ productSchema.pre('save', function(next){
 });
 
 
-productSchema.virtual('Average Rating').get(function(){
+productSchema.virtual('averageRating').get(function(){
     if(!this.reviews || this.reviews.length === 0) return this.rating || 0;
     const sum = this.reviews.reduce((total, review) => total + (review.rating || 0), 0);
     return Number((sum / this.reviews.length).toFixed(2));
-})
+});
+
+productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toObject', { virtuals: true });
+
 
 export default mongoose.model('Product', productSchema);

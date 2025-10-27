@@ -14,7 +14,6 @@ export class AuthEffect {
 
   constructor() {}
 
-  // 🔹 تسجيل الدخول
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
@@ -38,7 +37,6 @@ export class AuthEffect {
     )
   );
 
-  // 🔹 عند نجاح تسجيل الدخول → توجيه حسب نوع المستخدم
   loginSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -47,7 +45,6 @@ export class AuthEffect {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
 
-          // ✅ توجيه حسب الدور
           if (user.role === 'admin') {
             this.router.navigate(['/admin']);
           } else {
@@ -58,7 +55,6 @@ export class AuthEffect {
     { dispatch: false }
   );
 
-  // 🔹 تحميل المستخدم من localStorage عند بداية التطبيق
   init$ = createEffect(() =>
     this.actions$.pipe(
       ofType('@ngrx/store/init', '@ngrx/effects/init'),
@@ -66,7 +62,6 @@ export class AuthEffect {
     )
   );
 
-  // Immediately restore auth state from localStorage, then attempt to refresh user from server.
   loadUserFromStorage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loadUserFromStorage),
@@ -77,10 +72,8 @@ export class AuthEffect {
         const userStr = localStorage.getItem('user');
         const storedUser = userStr ? JSON.parse(userStr) : null;
 
-        // restore state synchronously from storage
         const restoreAction = AuthActions.loginSuccess({ user: storedUser, token });
 
-        // attempt to refresh user from API; on error do not force logout (avoid removing valid token on transient errors)
         const refresh$ = this.authService.getMe().pipe(
           map((user) => AuthActions.loginSuccess({ user, token })),
           catchError(() => EMPTY)
@@ -91,7 +84,6 @@ export class AuthEffect {
     )
   );
 
-  // 🔹 تسجيل الخروج
   logout$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -105,7 +97,6 @@ export class AuthEffect {
     { dispatch: false }
   );
 
-  // 🔹 التسجيل (Register)
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
@@ -129,7 +120,6 @@ export class AuthEffect {
     )
   );
 
-  // 🔹 عند نجاح التسجيل → توجيه حسب نوع المستخدم
   registerSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -138,7 +128,6 @@ export class AuthEffect {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
 
-          // ✅ توجيه حسب الدور
           if (user.role === 'admin') {
             this.router.navigate(['/admin']);
           } else {
@@ -191,7 +180,6 @@ export class AuthEffect {
       this.actions$.pipe(
         ofType(AuthActions.deleteUserSuccess),
         tap(() => {
-          // Perform the same cleanup as logout
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           this.router.navigate(['/auth/register']); 
@@ -199,56 +187,4 @@ export class AuthEffect {
       ),
     { dispatch: false }
   );
-  
-  // --- New CRUD Effects ---
-
-  updateUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.updateUser),
-      mergeMap(({ userId, data }) =>
-        this.authService.updateUser(userId, data).pipe(
-          map((user) => AuthActions.updateUserSuccess({ user })),
-          catchError((error) =>
-            of(
-              AuthActions.updateUserFailure({
-                error: error.error?.message || error.message || 'Failed to update user profile.',
-              })
-            )
-          )
-        )
-      )
-    )
-  );
-
-  deleteUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.deleteUser),
-      mergeMap(({ userId }) =>
-        this.authService.deleteUser(userId).pipe(
-          map(() => AuthActions.deleteUserSuccess()),
-          catchError((error) =>
-            of(
-              AuthActions.deleteUserFailure({
-                error: error.error?.message || error.message || 'Failed to delete user account.',
-              })
-            )
-          )
-        )
-      )
-    )
-  );
-  
-  deleteUserSuccess$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(AuthActions.deleteUserSuccess),
-        tap(() => {
-          // Perform the same cleanup as logout
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          this.router.navigate(['/auth/register']); // Redirect to registration or home page
-        })
-      ),
-    { dispatch: false }
-  );
-}
+}  

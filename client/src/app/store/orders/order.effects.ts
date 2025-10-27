@@ -109,7 +109,7 @@ export class OrderEffects {
       ofType(OrderActions.loadAllOrders),
       mergeMap(() =>
         this.orderService.getAllOrders().pipe(
-          map((orders) => OrderActions.loadAllOrdersSuccess({ orders })),
+          map((orders) => OrderActions.loadAllOrdersSuccess({ orders : orders.data })),
           catchError((err: any) =>
             of(
               OrderActions.loadAllOrdersFailure({
@@ -125,8 +125,8 @@ export class OrderEffects {
   updateOrderStatus$ = createEffect(() =>
     this.actions$.pipe(
       ofType(OrderActions.updateOrderStatus),
-      mergeMap(({ orderId, status }) =>
-        this.orderService.updateOrderStatus(orderId, status).pipe(
+      mergeMap(({ orderId, isDelivered }) =>
+        this.orderService.updateOrderStatus(orderId, isDelivered).pipe(
           map((order) => OrderActions.updateOrderStatusSuccess({ order })),
           catchError((err: any) =>
             of(

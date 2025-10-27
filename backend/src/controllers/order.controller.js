@@ -3,9 +3,7 @@ import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import { createPaymentIntent , getPaymentIntent } from "../services/payment.js";
 import { adjustStock } from "../utils/helpers.js";
-/**
- * Create a new order
- */
+
 export const createOrder = async (req, res, next) => {
   try {
     if (!req.user || !req.user.id) {
@@ -30,7 +28,7 @@ export const createOrder = async (req, res, next) => {
       return next(err);
     }
 
-    // Fetch product details
+  
     const productIds = orderItems.map((i) => i.product);
     const products = await Product.find({ _id: { $in: productIds } });
 
@@ -94,7 +92,6 @@ export const createOrder = async (req, res, next) => {
       };
     });
 
-    // Calculate order totals
     const itemsPrice = newOrderItems.reduce(
       (acc, item) => acc + item.subTotal,
       0
@@ -105,7 +102,6 @@ export const createOrder = async (req, res, next) => {
     const totalPrice =
       Math.round((itemsPrice + normalizedShipping + normalizedTax) * 100) / 100;
 
-    // Prepare order document
     const orderDoc = {
       user: req.user.id,
       orderItems: newOrderItems,
@@ -150,9 +146,6 @@ export const createOrder = async (req, res, next) => {
   }
 };
 
-/**
- * Fetch all orders for current user
- */
 export const getMyOrders = async (req, res, next) => {
   try {
     if (!req.user || !req.user.id) {
@@ -170,9 +163,6 @@ export const getMyOrders = async (req, res, next) => {
   }
 };
 
-/**
- * Get order by ID (owner or admin)
- */
 export const getOrderById = async (req, res, next) => {
   try {
     if (!req.user || !req.user.id) {
@@ -205,9 +195,6 @@ export const getOrderById = async (req, res, next) => {
   }
 };
 
-/**
- * Admin: Get all orders (paginated)
- */
 export const getAllOrders = async (req, res, next) => {
   try {
     if (!req.user || req.user.role !== "admin") {
@@ -241,9 +228,6 @@ export const getAllOrders = async (req, res, next) => {
   }
 };
 
-/**
- * Admin: Update order delivery status
- */
 export const updateOrderStatus = async (req, res, next) => {
   try {
     if (!req.user || req.user.role !== "admin") {
@@ -273,23 +257,15 @@ export const updateOrderStatus = async (req, res, next) => {
   }
 };
 
-/**
- * Mark order as paid (User/Admin)
- */
-/**
- * Mark order as paid (User/Admin)
- */
-// controllers/order.controller.js (updateOrderToPaid)
+
 export const updateOrderToPaid = async (req, res, next) => {
   try {
-    // Auth check
     if (!req.user || !req.user.id) {
       const err = new Error("Authentication required");
       err.statusCode = 401;
       return next(err);
     }
 
-    // Load order
     const order = await Order.findById(req.params.id);
     if (!order) {
       const err = new Error("Order not found");
@@ -305,23 +281,19 @@ export const updateOrderToPaid = async (req, res, next) => {
       return next(err);
     }
 
-    // If already paid, return early
     if (order.isPaid) return res.json(order);
 
-    // Preferred flow: client sends paymentResult.id (Stripe PaymentIntent id)
     if (req.body.paymentResult && req.body.paymentResult.id) {
       try {
         const paymentIntentId = req.body.paymentResult.id;
         const paymentIntent = await getPaymentIntent(paymentIntentId);
 
-        // Ensure paymentIntent exists and has acceptable status
         if (!paymentIntent || !["succeeded", "requires_capture"].includes(paymentIntent.status)) {
           const err = new Error("Payment not confirmed by Stripe");
           err.statusCode = 400;
           return next(err);
         }
 
-        // Extra safety: metadata.orderId should match this order (if you added metadata on creation)
         if (paymentIntent.metadata && paymentIntent.metadata.orderId) {
           if (paymentIntent.metadata.orderId !== order._id.toString()) {
             const err = new Error("PaymentIntent metadata does not match order id");
@@ -330,7 +302,6 @@ export const updateOrderToPaid = async (req, res, next) => {
           }
         }
 
-        // Extra safety: verify amount matches expected order total (in cents)
         const expectedAmount = Math.round(Number(order.totalPrice || 0) * 100);
         if (typeof paymentIntent.amount === "number" && paymentIntent.amount !== expectedAmount) {
           const err = new Error("Payment amount does not match order total");
@@ -338,19 +309,16 @@ export const updateOrderToPaid = async (req, res, next) => {
           return next(err);
         }
 
-        // Reserve stock (only if not already reserved)
         if (!order.stockReserved) {
           try {
             await adjustStock(order.orderItems, false);
             order.stockReserved = true;
           } catch (stockErr) {
-            // If stock adjustment fails, surface the error (do NOT mark order paid)
             stockErr.statusCode = stockErr.statusCode || 400;
             return next(stockErr);
           }
         }
 
-        // Persist payment info to the order
         order.isPaid = true;
         order.paymentStatus = "paid";
         order.paidAt = new Date();
@@ -364,11 +332,9 @@ export const updateOrderToPaid = async (req, res, next) => {
 
         order.paymentResult = req.body.paymentResult;
       } catch (err) {
-        // pass stripe/getPaymentIntent errors to the centralized error handler
         return next(err);
       }
     } else if (isAdmin) {
-      // Admin override: allow marking paid without paymentResult
       if (!order.stockReserved) {
         try {
           await adjustStock(order.orderItems, false);
@@ -390,13 +356,11 @@ export const updateOrderToPaid = async (req, res, next) => {
         }
       }
     } else {
-      // Not owner and not admin, or no payment provided
       const err = new Error("paymentResult.id is required to mark order paid");
       err.statusCode = 400;
       return next(err);
     }
 
-    // Save and return updated order
     const updated = await order.save();
     res.json(updated);
   } catch (error) {
@@ -405,9 +369,6 @@ export const updateOrderToPaid = async (req, res, next) => {
 };
 
 
-/**
- * Admin: Delete order + restore stock if needed
-*/
 export const deleteOrder = async (req, res, next) => {
   try {
     if (!req.user || req.user.role !== "admin") {

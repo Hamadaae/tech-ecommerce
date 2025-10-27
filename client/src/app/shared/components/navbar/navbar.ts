@@ -1,20 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
+
+// Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
-import { FormsModule } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { CartService } from '../../../core/services/cart.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Subscription } from 'rxjs';
+
+// Store selectors/actions
 import { isLoggedIn, selectUser } from '../../../store/auth/auth.selectors';
 import { logout } from '../../../store/auth/auth.actions';
+
+// Services
+import { CartService } from '../../../core/services/cart.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -32,43 +37,57 @@ import { logout } from '../../../store/auth/auth.actions';
   ],
   templateUrl: './navbar.html',
 })
-export class Navbar {
-
+export class Navbar implements OnDestroy {
   isLoggedIn$: Observable<boolean>;
   user$: Observable<any>;
   cartItemCount = 0;
+  searchTerm = '';
   showMobileSearch = false;
-  searchQuery = '';
-  private cartSub?: () => void;
-  private subs = new Subscription();
 
-  constructor(private store: Store, private cartService: CartService, private notificationService: NotificationService) {
+  private subs = new Subscription();
+  private cartUnsubscribe?: () => void;
+
+  constructor(
+    private store: Store,
+    private router: Router,
+    private cartService: CartService,
+    private notificationService: NotificationService
+  ) {
     this.isLoggedIn$ = this.store.select(isLoggedIn);
     this.user$ = this.store.select(selectUser);
-    // initialize & subscribe to cart
+
+    // Initialize and subscribe to cart count updates
     this.cartItemCount = this.cartService.getCount();
-    this.cartSub = this.cartService.onChange(() => {
+    this.cartUnsubscribe = this.cartService.onChange(() => {
       this.cartItemCount = this.cartService.getCount();
     });
-    // log notifications for now
-    this.subs.add(this.notificationService.notifications$.subscribe(n => console.log('Notification:', n)));
+
+    // Optional: subscribe to notifications
+    this.subs.add(
+      this.notificationService.notifications$.subscribe((n) =>
+        console.log('Notification:', n)
+      )
+    );
   }
-  ngOnDestroy() {
-    if (this.cartSub) this.cartSub();
+
+  ngOnDestroy(): void {
+    if (this.cartUnsubscribe) this.cartUnsubscribe();
     this.subs.unsubscribe();
   }
 
-  toggleMobileSearch() {
+  toggleMobileSearch(): void {
     this.showMobileSearch = !this.showMobileSearch;
   }
 
-  onSearch() {
-    if (this.searchQuery.trim()) {
-      console.log('Searching for:', this.searchQuery);
+  onSearch(): void {
+    const query = this.searchTerm.trim();
+    if (query) {
+      this.router.navigate(['/products'], { queryParams: { search: query } });
+      this.showMobileSearch = false;
     }
   }
 
-  logout() {
+  logout(): void {
     this.store.dispatch(logout());
   }
 }

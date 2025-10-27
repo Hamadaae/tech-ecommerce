@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ProductState } from './product.models';
+import { ProductState } from './product.models'; // Ensures we use the correct state model
 
 export const selectProductState = createFeatureSelector<ProductState>('products');
 
@@ -11,6 +11,11 @@ export const selectAllProducts = createSelector(
 export const selectSelectedProduct = createSelector(
   selectProductState,
   (state) => state.selectedProduct
+);
+
+export const selectProductsMeta = createSelector(
+  selectProductState,
+  (state) => state.meta
 );
 
 export const selectProductsLoading = createSelector(

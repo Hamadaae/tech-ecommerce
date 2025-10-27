@@ -12,7 +12,6 @@
   </div>
 </div>
 
-<!-- Main Navbar -->
 <mat-toolbar class="bg-white border-b border-gray-200 px-8 flex justify-between items-center">
   <!-- Logo -->
   <a routerLink="/" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
@@ -20,20 +19,22 @@
     <span class="text-xl font-bold tracking-tight">TechZone</span>
   </a>
 
-  <!-- Search Bar (تختفي لو المستخدم أدمن) -->
   <div class="hidden md:flex items-center flex-1 max-w-xl mx-8" *ngIf="(user$ | async)?.role !== 'admin'">
     <form (ngSubmit)="onSearch()" class="relative w-full">
-      <input type="text" [(ngModel)]="searchQuery" name="search" placeholder="Search products..."
-        class="w-full py-2 pl-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        name="search"
+        placeholder="Search products..."
+        class="w-full py-2 pl-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      />
       <button type="submit" class="absolute right-3 top-2 text-gray-400">
         <mat-icon>search</mat-icon>
       </button>
     </form>
   </div>
 
-  <!-- Navigation & Actions -->
   <div class="flex items-center gap-6">
-    <!-- Links (تختفي لو المستخدم أدمن) -->
     <nav class="flex items-center gap-6 font-medium text-gray-700" *ngIf="(user$ | async)?.role !== 'admin'">
       <a routerLink="/products" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
         <mat-icon>category</mat-icon>
@@ -41,7 +42,6 @@
       </a>
     </nav>
 
-    <!-- Cart (تختفي لو المستخدم أدمن) -->
     <a routerLink="/cart" class="relative flex items-center" *ngIf="(user$ | async)?.role !== 'admin'">
       <mat-icon class="text-gray-700">shopping_cart</mat-icon>
       <span *ngIf="cartItemCount > 0"
@@ -50,13 +50,11 @@
       </span>
     </a>
 
-    <!-- Auth -->
     <ng-container *ngIf="!(isLoggedIn$ | async); else userMenu">
       <a routerLink="/auth/login" class="hover:text-blue-600 transition-colors">Login</a>
       <a routerLink="/auth/register" class="hover:text-blue-600 transition-colors">Register</a>
     </ng-container>
 
-    <!-- Logged-in User -->
     <ng-template #userMenu>
       <button mat-button [matMenuTriggerFor]="menu"
         class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-100 transition">
@@ -68,9 +66,7 @@
     </ng-template>
   </div>
 
-  <!-- User Dropdown -->
   <mat-menu #menu="matMenu" class="!p-0">
-    <!-- لو المستخدم أدمن -->
     <ng-container *ngIf="(user$ | async)?.role === 'admin'; else normalUserMenu">
         <button mat-menu-item (click)="logout()" class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2">
           <mat-icon class="mr-2">logout</mat-icon>
@@ -78,7 +74,6 @@
         </button>
     </ng-container>
 
-    <!-- المستخدم العادي -->
     <ng-template #normalUserMenu>
       <div class="w-48 py-2 bg-white rounded-lg shadow-lg">
         <button mat-menu-item routerLink="/profile" class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2">

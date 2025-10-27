@@ -9,16 +9,28 @@ export class ProductEffects {
   private actions$ = inject(Actions);
   private productService = inject(ProductService);
 
-  constructor() {} 
+  constructor() {}
 
   loadProducts$ = createEffect(() =>
-    this.actions$.pipe( 
+    this.actions$.pipe(
       ofType(ProductActions.loadProducts),
-      mergeMap(() =>
-        this.productService.getProducts().pipe(
-          map((products) => ProductActions.loadProductsSuccess({ products })),
-          catchError((error) =>
-            of(ProductActions.loadProductsFailure({ error: error.message || 'Failed to load products' }))
+      mergeMap(({ page = 1, limit = 10, category, search, sort }) =>
+        this.productService.getProducts(page, limit, category, search, sort).pipe(
+          map((res) =>
+            ProductActions.loadProductsSuccess({
+              products: res.data,
+              meta: res.meta,
+            })
+          ),
+          catchError((error: any) =>
+            of(
+              ProductActions.loadProductsFailure({
+                error:
+                  (error && error.error && error.error.message) ||
+                  error?.message ||
+                  'Failed to load products',
+              })
+            )
           )
         )
       )
@@ -32,13 +44,17 @@ export class ProductEffects {
         this.productService.getProductById(id).pipe(
           map((product) => ProductActions.loadProductSuccess({ product })),
           catchError((error) =>
-            of(ProductActions.loadProductFailure({ error: error.message || 'Failed to load product' }))
+            of(
+              ProductActions.loadProductFailure({
+                error: error?.message || 'Failed to load product',
+              })
+            )
           )
         )
       )
     )
   );
-
+  
   createProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.createProduct),
@@ -46,7 +62,11 @@ export class ProductEffects {
         this.productService.createProduct(product).pipe(
           map((newProduct) => ProductActions.createProductSuccess({ product: newProduct })),
           catchError((error) =>
-            of(ProductActions.createProductFailure({ error: error.message || 'Failed to create product' }))
+            of(
+              ProductActions.createProductFailure({
+                error: error.message || 'Failed to create product',
+              })
+            )
           )
         )
       )
@@ -60,7 +80,11 @@ export class ProductEffects {
         this.productService.updateProduct(id, changes).pipe(
           map((updatedProduct) => ProductActions.updateProductSuccess({ product: updatedProduct })),
           catchError((error) =>
-            of(ProductActions.updateProductFailure({ error: error.message || 'Failed to update product' }))
+            of(
+              ProductActions.updateProductFailure({
+                error: error.message || 'Failed to update product',
+              })
+            )
           )
         )
       )
@@ -74,7 +98,11 @@ export class ProductEffects {
         this.productService.deleteProduct(id).pipe(
           map(() => ProductActions.deleteProductSuccess({ id })),
           catchError((error) =>
-            of(ProductActions.deleteProductFailure({ error: error.message || 'Failed to delete product' }))
+            of(
+              ProductActions.deleteProductFailure({
+                error: error.message || 'Failed to delete product',
+              })
+            )
           )
         )
       )
