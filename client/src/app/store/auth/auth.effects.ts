@@ -14,6 +14,7 @@ export class AuthEffect {
 
   constructor() {}
 
+  // 🔹 تسجيل الدخول
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
@@ -37,6 +38,7 @@ export class AuthEffect {
     )
   );
 
+  // 🔹 عند نجاح تسجيل الدخول → توجيه حسب نوع المستخدم
   loginSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -44,12 +46,19 @@ export class AuthEffect {
         tap(({ user, token }) => {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigate(['/']);
+
+          // ✅ توجيه حسب الدور
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         })
       ),
     { dispatch: false }
   );
 
+  // 🔹 تحميل المستخدم من localStorage عند بداية التطبيق
   init$ = createEffect(() =>
     this.actions$.pipe(
       ofType('@ngrx/store/init', '@ngrx/effects/init'),
@@ -82,6 +91,7 @@ export class AuthEffect {
     )
   );
 
+  // 🔹 تسجيل الخروج
   logout$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -95,13 +105,17 @@ export class AuthEffect {
     { dispatch: false }
   );
 
+  // 🔹 التسجيل (Register)
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
       mergeMap(({ data }) =>
         this.authService.register(data).pipe(
           map((response: AuthResponse) =>
-            AuthActions.registerSuccess({ user: response.user, token: response.token })
+            AuthActions.registerSuccess({
+              user: response.user,
+              token: response.token,
+            })
           ),
           catchError((error: any) =>
             of(
@@ -114,6 +128,8 @@ export class AuthEffect {
       )
     )
   );
+
+  // 🔹 عند نجاح التسجيل → توجيه حسب نوع المستخدم
   registerSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -121,7 +137,64 @@ export class AuthEffect {
         tap(({ user, token }) => {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigate(['/']);
+
+          // ✅ توجيه حسب الدور
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
+        })
+      ),
+    { dispatch: false }
+  );
+  
+
+  updateUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updateUser),
+      mergeMap(({ userId, data }) =>
+        this.authService.updateUser(userId, data).pipe(
+          map((user) => AuthActions.updateUserSuccess({ user })),
+          catchError((error) =>
+            of(
+              AuthActions.updateUserFailure({
+                error: error.error?.message || error.message || 'Failed to update user profile.',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
+  deleteUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.deleteUser),
+      mergeMap(({ userId }) =>
+        this.authService.deleteUser(userId).pipe(
+          map(() => AuthActions.deleteUserSuccess()),
+          catchError((error) =>
+            of(
+              AuthActions.deleteUserFailure({
+                error: error.error?.message || error.message || 'Failed to delete user account.',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+  
+  deleteUserSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.deleteUserSuccess),
+        tap(() => {
+          // Perform the same cleanup as logout
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/auth/register']); 
         })
       ),
     { dispatch: false }

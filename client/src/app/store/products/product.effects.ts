@@ -11,8 +11,6 @@ export class ProductEffects {
 
   constructor() {} 
 
-  // --- READ EFFECTS ---
-
   loadProducts$ = createEffect(() =>
     this.actions$.pipe( 
       ofType(ProductActions.loadProducts),
@@ -41,12 +39,9 @@ export class ProductEffects {
     )
   );
 
-  // --- CREATE EFFECT ---
-
   createProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.createProduct),
-      // switchMap is generally better for CUD operations to cancel previous requests
       switchMap(({ product }) =>
         this.productService.createProduct(product).pipe(
           map((newProduct) => ProductActions.createProductSuccess({ product: newProduct })),
@@ -58,14 +53,11 @@ export class ProductEffects {
     )
   );
 
-  // --- UPDATE EFFECT ---
-
   updateProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.updateProduct),
       switchMap(({ id, changes }) =>
         this.productService.updateProduct(id, changes).pipe(
-          // Assuming the backend returns the *fully* updated product
           map((updatedProduct) => ProductActions.updateProductSuccess({ product: updatedProduct })),
           catchError((error) =>
             of(ProductActions.updateProductFailure({ error: error.message || 'Failed to update product' }))
@@ -75,14 +67,11 @@ export class ProductEffects {
     )
   );
 
-  // --- DELETE EFFECT ---
-
   deleteProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.deleteProduct),
       switchMap(({ id }) =>
         this.productService.deleteProduct(id).pipe(
-          // On successful deletion, we only need the ID to update the state
           map(() => ProductActions.deleteProductSuccess({ id })),
           catchError((error) =>
             of(ProductActions.deleteProductFailure({ error: error.message || 'Failed to delete product' }))

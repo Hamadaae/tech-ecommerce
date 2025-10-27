@@ -1,5 +1,7 @@
 import express from 'express';
+
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getCategories } from '../controllers/product.controller.js';
+
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router()

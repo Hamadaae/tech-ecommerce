@@ -1,1 +1,35 @@
-<p>admin works!</p>
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-4">Admin — Orders</h1>
+  <div *ngIf="loading">Loading orders...</div>
+  <div *ngIf="error" class="text-red-500">{{ error }}</div>
+  <table *ngIf="orders.length > 0" class="min-w-full bg-white">
+    <thead>
+      <tr>
+        <th class="px-4 py-2">ID</th>
+        <th class="px-4 py-2">User</th>
+        <th class="px-4 py-2">Total</th>
+        <th class="px-4 py-2">Status</th>
+        <th class="px-4 py-2">Payment</th>
+        <th class="px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let o of orders" class="border-t">
+        <td class="px-4 py-2">{{ o._id }}</td>
+        <td class="px-4 py-2">{{ o.user?.email || o.user?.name }}</td>
+        <td class="px-4 py-2">{{ o.totalPrice }}</td>
+        <td class="px-4 py-2">
+          <select [value]="o.status" (change)="onStatusChange(o._id, $event)"
+>
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select>
+        </td>
+        <td class="px-4 py-2">{{ o.paymentStatus }}</td>
+        <td class="px-4 py-2">
+          <button (click)="deleteOrder(o._id)" class="px-2 py-1 rounded bg-red-500 text-white">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="orders.length === 0 && !loading">No orders found.</div>
+</div>
