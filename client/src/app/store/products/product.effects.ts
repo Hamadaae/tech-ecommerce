@@ -16,8 +16,8 @@ export class ProductEffects {
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.loadProducts),
-      mergeMap(({ page = 1, limit = 10, category, search }) =>
-        this.productService.getProducts(page, limit, category, search).pipe(
+      mergeMap(({ page = 1, limit = 10, category, search, sort }) =>
+        this.productService.getProducts(page, limit, category, search, sort).pipe(
           map((res) =>
             ProductActions.loadProductsSuccess({
               products: res.data,
@@ -25,7 +25,14 @@ export class ProductEffects {
             })
           ),
           catchError((error: any) =>
-            of(ProductActions.loadProductsFailure({ error: error?.error?.message || error?.message || 'Failed to load products' }))
+            of(
+              ProductActions.loadProductsFailure({
+                error:
+                  error?.error?.message ||
+                  error?.message ||
+                  'Failed to load products',
+              })
+            )
           )
         )
       )

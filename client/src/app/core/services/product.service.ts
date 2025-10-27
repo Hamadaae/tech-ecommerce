@@ -16,13 +16,14 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(page = 1, limit = 10, category?: string, search?: string): Observable<PaginatedProductsResponse> {
+  getProducts(page = 1, limit = 10, category?: string, search?: string, sort?: string): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('page', String(page))
       .set('limit', String(limit));
 
     if (category) params = params.set('category', category);
     if (search && search.trim() !== '') params = params.set('search', search);
+    if (sort && sort.trim() !== '') params = params.set('sort', sort);
 
     return this.http.get<PaginatedProductsResponse>(this.apiUrl, { params });
   }
