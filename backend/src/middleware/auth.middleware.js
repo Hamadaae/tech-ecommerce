@@ -5,7 +5,6 @@ export default function authMiddleware(req, res, next) {
   try {
     const authHeader = req.headers.authorization || '';
 
-    // Check for 'Bearer <token>'
     const token = authHeader.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
       : null;

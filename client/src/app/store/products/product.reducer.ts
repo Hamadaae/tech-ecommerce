@@ -16,8 +16,8 @@ export const productReducer = createReducer(
   on(ProductActions.loadProductsSuccess, (state, { products, meta }) => ({
     ...state,
     loading: false,
-    products, // Assigns the Product[] array from the payload
-    meta: meta, // Assigns the PaginationMeta object from the payload
+    products,
+    meta: meta, 
   })),
 
   on(ProductActions.loadProductsFailure, (state, { error }) => ({

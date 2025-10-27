@@ -68,32 +68,3 @@ export const deleteUserFailure = createAction(
 
 export const loadUserFromStorage = createAction('[Auth] Load User From Storage');
 
-
-export const updateUser = createAction(
-    '[Auth] Update User Profile',
-    props<{ userId: string, data: UserUpdatePayload }>()
-);
-
-export const updateUserSuccess = createAction(
-    '[Auth] Update User Profile Success',
-    props<{ user: User }>()
-);
-
-export const updateUserFailure = createAction(
-    '[Auth] Update User Profile Failure',
-    props<{ error: string }>()
-);
-
-export const deleteUser = createAction(
-    '[Auth] Delete User Account',
-    props<{ userId: string }>()
-);
-
-export const deleteUserSuccess = createAction(
-    '[Auth] Delete User Account Success'
-);
-
-export const deleteUserFailure = createAction(
-    '[Auth] Delete User Account Failure',
-    props<{ error: string }>()
-);

@@ -117,7 +117,6 @@ export class Home implements OnInit {
   constructor(private store: Store, private cartService: CartService, private notificationService: NotificationService) {
     this.products$ = this.store.select(selectAllProducts);
 
-    // Add more products
     this.newProducts = [
       ...this.newProducts,
       {

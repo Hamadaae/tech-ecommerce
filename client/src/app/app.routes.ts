@@ -28,7 +28,6 @@ export const routes: Routes = [
   },
   {
     path: 'products',
-    // keep children (standalone route config) — remove loadChildren to avoid conflicts
     children: productsRoutes,
     canActivate: [isAppReadyGuard],
   },

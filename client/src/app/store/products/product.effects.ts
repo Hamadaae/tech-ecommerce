@@ -9,11 +9,7 @@ export class ProductEffects {
   private actions$ = inject(Actions);
   private productService = inject(ProductService);
 
-<<<<<<< HEAD
   constructor() {}
-=======
-  constructor() {} 
->>>>>>> 12d7094c63bfa985490eec18dded0e157d1120e5
 
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
@@ -58,11 +54,7 @@ export class ProductEffects {
       )
     )
   );
-<<<<<<< HEAD
-  // --- CREATE EFFECT ---
-=======
->>>>>>> 12d7094c63bfa985490eec18dded0e157d1120e5
-
+  
   createProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductActions.createProduct),

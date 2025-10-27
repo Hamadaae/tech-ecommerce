@@ -7,9 +7,9 @@ export const getProducts = async (req, res, next) => {
   try {
     const {
       category,
-      q,               // legacy query name
-      search,          // preferred search param
-      sort,            // expected format: "price:asc" or "rating:desc"
+      q,              
+      search,          
+      sort,            
       page = 1,
       limit = 10,
     } = req.query;
@@ -22,35 +22,29 @@ export const getProducts = async (req, res, next) => {
     if (category) filter.category = category;
 
     const searchTerm = (search || q || '').trim();
-    // Build optional sort object from "field:dir"
     let sortObj = null;
     if (sort && typeof sort === 'string' && sort.includes(':')) {
       const [field, dir] = sort.split(':');
-      // default to descending if dir is not 'asc'
       sortObj = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
     let query;
     if (searchTerm !== '') {
-      // Use text search. If sortObj exists, apply score first then requested field.
       const baseQuery = Product.find(
         { $text: { $search: searchTerm } },
         { score: { $meta: 'textScore' } }
       );
 
       if (sortObj) {
-        // Put text score first to preserve relevance, then secondary sort
         query = baseQuery.sort({ score: { $meta: 'textScore' }, ...sortObj });
       } else {
         query = baseQuery.sort({ score: { $meta: 'textScore' } });
       }
     } else {
-      // No search term - regular find with optional category filter and sort
       query = Product.find(filter);
       if (sortObj) {
         query = query.sort(sortObj);
       } else {
-        // default fallback sort
         query = query.sort({ createdAt: -1 });
       }
     }
@@ -152,24 +146,3 @@ export const getCategories = async (req, res, next) => {
     return next(error);
   }
 };
-
-// export const searchProducts = async (req, res, next) => {
-//   try {
-//     const { query } = req.query;
-
-//     if (!query || query.trim() === '') {
-//       return res.status(400).json({ message: 'Search query is required' });
-//     }
-
-//     const results = await Product.find(
-//       { $text: { $search: query } },
-//       { score: { $meta: 'textScore' } }
-//     )
-//       .sort({ score: { $meta: 'textScore' } })
-//       .limit(20);
-
-//     res.status(200).json(results);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
