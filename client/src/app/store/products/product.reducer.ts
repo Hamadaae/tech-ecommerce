@@ -1,20 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import * as ProductActions from './product.actions';
+// Import ProductState and initialState from the models file to ensure one source of truth
+import { initialState, ProductState } from './product.models'; 
 import { Product } from '../../core/models/product.model';
-
-export interface ProductState {
-  products: Product[];
-  selectedProduct: Product | null;
-  loading: boolean;
-  error: string | null;
-}
-
-export const initialState: ProductState = {
-  products: [],
-  selectedProduct: null,
-  loading: false,
-  error: null,
-};
 
 export const productReducer = createReducer(
   initialState,
@@ -26,11 +14,14 @@ export const productReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(ProductActions.loadProductsSuccess, (state, { products }) => ({
+
+  on(ProductActions.loadProductsSuccess, (state, { products, meta }) => ({
     ...state,
-    products,
     loading: false,
+    products, // Assigns the Product[] array from the payload
+    meta: meta, // Assigns the PaginationMeta object from the payload
   })),
+
   on(ProductActions.loadProductsFailure, (state, { error }) => ({
     ...state,
     loading: false,
@@ -62,7 +53,6 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.createProductSuccess, (state, { product }) => ({
     ...state,
-    // Add the new product to the list
     products: [...state.products, product],
     loading: false,
   })),
@@ -81,7 +71,6 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.updateProductSuccess, (state, { product }) => ({
     ...state,
-    // Map over the products and replace the old version with the updated one
     products: state.products.map(p => p._id === product._id ? product : p),
     loading: false,
   })),
@@ -100,10 +89,8 @@ export const productReducer = createReducer(
   })),
   on(ProductActions.deleteProductSuccess, (state, { id }) => ({
     ...state,
-    // Filter out the deleted product by ID
     products: state.products.filter(p => p._id !== id),
     loading: false,
-    // Ensure selected product is cleared if the deleted product was selected
     selectedProduct: state.selectedProduct?._id === id ? null : state.selectedProduct,
   })),
   on(ProductActions.deleteProductFailure, (state, { error }) => ({

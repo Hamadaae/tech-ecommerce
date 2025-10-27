@@ -14,13 +14,18 @@ export class ProductEffects {
   // --- READ EFFECTS ---
 
   loadProducts$ = createEffect(() =>
-    this.actions$.pipe( 
+    this.actions$.pipe(
       ofType(ProductActions.loadProducts),
-      mergeMap(() =>
-        this.productService.getProducts().pipe(
-          map((products) => ProductActions.loadProductsSuccess({ products })),
-          catchError((error) =>
-            of(ProductActions.loadProductsFailure({ error: error.message || 'Failed to load products' }))
+      mergeMap(({ page = 1, limit = 10, category, search }) =>
+        this.productService.getProducts(page, limit, category, search).pipe(
+          map((res) =>
+            ProductActions.loadProductsSuccess({
+              products: res.data,
+              meta: res.meta,
+            })
+          ),
+          catchError((error: any) =>
+            of(ProductActions.loadProductsFailure({ error: error?.error?.message || error?.message || 'Failed to load products' }))
           )
         )
       )

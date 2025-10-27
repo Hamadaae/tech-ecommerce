@@ -3,15 +3,18 @@ import { Product } from '../../core/models/product.model';
 
 // --- READ Operations ---
 
-export const loadProducts = createAction('[Products] Load Products');
+export const loadProducts = createAction(
+  '[Product] Load Products',
+  props<{ page?: number; limit?: number; category?: string; search?: string }>()
+);
 
 export const loadProductsSuccess = createAction(
-  '[Products] Load Products Success',
-  props<{ products: Product[] }>()
+  '[Product] Load Products Success',
+  props<{ products: Product[]; meta: any }>()
 );
 
 export const loadProductsFailure = createAction(
-  '[Products] Load Products Failure',
+  '[Product] Load Products Failure',
   props<{ error: string }>()
 );
 

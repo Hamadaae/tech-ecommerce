@@ -150,7 +150,7 @@ export class Home implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(loadProducts());
+    this.store.dispatch(loadProducts({}));
   }
 
 }

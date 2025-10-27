@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../store/app.state';
 import * as ProductActions from '../../store/products/product.actions';
@@ -8,6 +8,9 @@ import * as ProductSelectors from '../../store/products/product.selectors';
 import { Product } from '../../core/models/product.model';
 import { CartService } from '../../core/services/cart.service';
 import { OrderItem } from '../../core/models/order.model';
+import { PaginationMeta } from '../../store/products/product.models'; 
+import { take } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products',
@@ -18,13 +21,43 @@ import { OrderItem } from '../../core/models/order.model';
 export class ProductsComponent implements OnInit {
   private store = inject(Store<AppState>);
   private cartService = inject(CartService);
+  private route = inject(ActivatedRoute);
 
   products$ = this.store.select(ProductSelectors.selectAllProducts);
+  meta$ = this.store.select(ProductSelectors.selectProductsMeta);
   loading$ = this.store.select(ProductSelectors.selectProductsLoading);
   error$ = this.store.select(ProductSelectors.selectProductsError);
 
+  private defaultLimit = 8;
+
   ngOnInit(): void {
-    this.store.dispatch(ProductActions.loadProducts());
+    this.route.queryParamMap
+      .pipe(
+        map(params => params.get('search') || ''),
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(searchTerm => {
+        this.loadProducts(1, this.defaultLimit, searchTerm);
+      });
+
+    this.loadProducts(1, this.defaultLimit);
+  }
+
+  private loadProducts(page: number, limit: number, search?: string): void {
+    this.store.dispatch(
+      ProductActions.loadProducts({ page, limit, search })
+    );
+  }
+
+  changePage(page: number): void {
+    this.meta$.pipe(take(1)).subscribe(meta => {
+      const currentLimit = meta ? meta.limit : this.defaultLimit;
+
+      const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
+
+      this.loadProducts(page, currentLimit, currentSearch);
+    });
   }
 
   getFinalPrice(product: Product): number | undefined {
@@ -54,9 +87,7 @@ export class ProductsComponent implements OnInit {
     this.cartService.addItem(cartItem);
     console.log(`Added ${product.title} to cart.`);
   }
-
   trackByProductId(index: number, product: any): string | number {
-    // prefer MongoDB _id, fallback to id or index
     return product?._id ?? product?.id ?? index;
   }
 }
