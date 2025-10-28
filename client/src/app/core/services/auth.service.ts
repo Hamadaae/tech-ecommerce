@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User, LoginPayload, RegisterPayload, UserUpdatePayload } from '../models/user.model';
-
+import { environment } from '../../../environments/environment';
 export interface AuthResponse {
   user: User;
   token: string;
 }
 
-const AUTH_API = '/api/auth';
+const AUTH_API = `${environment.apiUrl}/auth`;
+const OAUTH_API = `${environment.apiUrl}/oauth`;
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,7 @@ export class AuthService {
     });
   }
 
-  updateUser(userId : string , data: UserUpdatePayload): Observable<User> {
+  updateUser(userId: string, data: UserUpdatePayload): Observable<User> {
     return this.http.put<User>(`${AUTH_API}/users/${userId}`, data);
   }
 
@@ -45,4 +46,33 @@ export class AuthService {
     return this.http.delete<{ message: string }>(`${AUTH_API}/users/${userId}`);
   }
 
+oauthLogin(provider: 'discord' | 'github', code: string): Observable<AuthResponse> {
+  return this.http.post<AuthResponse>(`${OAUTH_API}/${provider}`, { code });
+}
+
+  getOAuthLoginUrl(provider: 'discord' | 'github'): string {
+    const baseUrls = {
+      discord: `https://discord.com/oauth2/authorize`,
+      github: `https://github.com/login/oauth/authorize`,
+    };
+
+    const clientIds = {
+      discord: environment.discordClientId,
+      github: environment.githubClientId,
+    };
+
+    const redirectUris = {
+      discord: encodeURIComponent('http://localhost:4200/auth/discord/callback'),
+      github: encodeURIComponent('http://localhost:4200/auth/github/callback'),
+    };
+
+    const scopes = {
+      discord: 'identify email',
+      github: 'user:email',
+    };
+
+    const responseType = 'code';
+
+    return `${baseUrls[provider]}?client_id=${clientIds[provider]}&redirect_uri=${redirectUris[provider]}&response_type=${responseType}&scope=${scopes[provider]}`;
+  }
 }

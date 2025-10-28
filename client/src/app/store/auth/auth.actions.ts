@@ -64,6 +64,20 @@ export const deleteUserFailure = createAction(
     props<{ error: string }>()
 );
 
+export const oauthLogin = createAction(
+  '[Auth] OAuth Login',
+  props<{ provider: 'github' | 'discord'; code: string }>()
+);
+
+export const oauthLoginSuccess = createAction(
+  '[Auth] OAuth Login Success',
+  props<{ user: User; token: string }>()
+);
+
+export const oauthLoginFailure = createAction(
+  '[Auth] OAuth Login Failure',
+  props<{ error: string }>()
+);
 
 
 export const loadUserFromStorage = createAction('[Auth] Load User From Storage');

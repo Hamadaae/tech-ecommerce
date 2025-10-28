@@ -8,6 +8,8 @@ import {
   generateToken,
 } from "../utils/helpers.js";
 
+
+
 export const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);

@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../store/auth/auth.actions';
 import { selectAuthError, selectAuthLoading } from '../../../store/auth/auth.selectors';
+import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service'; 
 
 @Component({
   selector: 'app-login',
@@ -17,6 +19,7 @@ export class Login {
 
   private fb = inject(FormBuilder)
   private store = inject(Store)
+  private authService = inject(AuthService)
 
   public authError = this.store.selectSignal(selectAuthError)
   public isLoading = this.store.selectSignal(selectAuthLoading)
@@ -35,5 +38,15 @@ export class Login {
       this.store.dispatch(AuthActions.login({credentials}))
     }
   }
+
+onDiscordLogin() {
+  const url = this.authService.getOAuthLoginUrl('discord');
+  window.location.href = url;
+}
+
+onGithubLogin() {
+  const url = this.authService.getOAuthLoginUrl('github');
+  window.location.href = url;
+}
 
 }

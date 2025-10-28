@@ -35,9 +35,9 @@ bootstrapApplication(App, {
       auth : authReducer,
       products : productReducer,
       orders : orderReducer,
-      Wishlist : wishlistReducer
+      // Wishlist : wishlistReducer
     }),
-    provideEffects([AuthEffect, ProductEffects, OrderEffects, WishlistEffects]),
+    provideEffects([AuthEffect, ProductEffects, OrderEffects]),
     provideStoreDevtools({maxAge : 25, logOnly : false}),
     AuthService,
     importProvidersFrom(CoreModule)

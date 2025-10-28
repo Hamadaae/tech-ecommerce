@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { selectAuthLoading } from './store/auth/auth.selectors';
 import { filter, map } from 'rxjs/operators';
 import { productsRoutes } from './pages/products/products.routes';
+import { OAuthCallbackComponent } from './pages/auth/oauth-callback';
 
 const isAppReadyGuard = () => {
   const store = inject(Store);
@@ -58,14 +59,24 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./pages/auth/register/register').then((m) => m.Register),
       },
+      {
+        path: 'discord/callback',
+        component: OAuthCallbackComponent,
+        data: { provider: 'discord' },
+      },
+      {
+        path: 'github/callback',
+        component: OAuthCallbackComponent,
+        data: { provider: 'github' },
+      },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },
-  {
-    path: 'admin',
-    loadChildren: () => import('./pages/admin/admin').then((m) => m.Admin),
-    canActivate: [isAppReadyGuard, AuthGuard],
-  },
+  // {
+  //   path: 'admin',
+  //   loadChildren: () => import('./pages/admin/admin').then((m) => m.Admin),
+  //   canActivate: [isAppReadyGuard, AuthGuard],
+  // },
   {
     path: '**',
     redirectTo: '',
