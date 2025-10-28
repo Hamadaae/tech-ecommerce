@@ -8,8 +8,8 @@ export interface AuthResponse {
   token: string;
 }
 
-const AUTH_API = '/api/auth';
-const OAUTH_API = '/api/oauth';
+const AUTH_API = `${environment.apiUrl}/auth`;
+const OAUTH_API = `${environment.apiUrl}/oauth`;
 
 @Injectable({
   providedIn: 'root',
@@ -47,32 +47,32 @@ export class AuthService {
   }
 
 oauthLogin(provider: 'discord' | 'github', code: string): Observable<AuthResponse> {
-  return this.http.get<AuthResponse>(`${AUTH_API}/${provider}/callback?code=${code}`);
+  return this.http.post<AuthResponse>(`${OAUTH_API}/${provider}`, { code });
 }
 
-getOAuthLoginUrl(provider: 'discord' | 'github'): string {
-  const baseUrls = {
-    discord: `https://discord.com/oauth2/authorize`,
-    github: `https://github.com/login/oauth/authorize`,
-  };
+  getOAuthLoginUrl(provider: 'discord' | 'github'): string {
+    const baseUrls = {
+      discord: `https://discord.com/oauth2/authorize`,
+      github: `https://github.com/login/oauth/authorize`,
+    };
 
-  const clientIds = {
-    discord: environment.discordClientId,
-    github: environment.githubClientId,
-  };
+    const clientIds = {
+      discord: environment.discordClientId,
+      github: environment.githubClientId,
+    };
 
-  const redirectUris = {
-    discord: encodeURIComponent('http://localhost:4200/auth/discord/callback'),
-    github: encodeURIComponent('http://localhost:4200/auth/github/callback'),
-  };
+    const redirectUris = {
+      discord: encodeURIComponent('http://localhost:4200/auth/discord/callback'),
+      github: encodeURIComponent('http://localhost:4200/auth/github/callback'),
+    };
 
-  const scopes = {
-    discord: 'identify email',
-    github: 'user:email',
-  };
+    const scopes = {
+      discord: 'identify email',
+      github: 'user:email',
+    };
 
-  const responseType = 'code';
+    const responseType = 'code';
 
-  return `${baseUrls[provider]}?client_id=${clientIds[provider]}&redirect_uri=${redirectUris[provider]}&response_type=${responseType}&scope=${scopes[provider]}`;
-}
+    return `${baseUrls[provider]}?client_id=${clientIds[provider]}&redirect_uri=${redirectUris[provider]}&response_type=${responseType}&scope=${scopes[provider]}`;
+  }
 }
