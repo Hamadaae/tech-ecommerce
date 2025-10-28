@@ -19,6 +19,7 @@ export async function handleOAuthUser(provider, profile) {
       avatar,
       provider,
       providerId,
+      isOAuth: true,
     });
   } else {
     if (!user.providerId || user.provider !== provider) {

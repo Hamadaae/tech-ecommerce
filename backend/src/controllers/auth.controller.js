@@ -8,8 +8,6 @@ import {
   generateToken,
 } from "../utils/helpers.js";
 
-
-
 export const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -29,7 +27,7 @@ export const register = async (req, res, next) => {
       return next(err);
     }
     const hashed = await hashPassword(password);
-    const user = new User({ name, email, password: hashed });
+    const user = new User({ name, email, password: hashed, avatar: null });
     await user.save();
 
     const token = generateToken(user);
@@ -96,7 +94,6 @@ export const me = async (req, res, next) => {
   }
 };
 
-
 export const updateUser = async (req, res, next) => {
   try {
     const userId = req.user?.id;
@@ -122,7 +119,6 @@ export const updateUser = async (req, res, next) => {
     return next(error);
   }
 };
-
 
 export const deleteUser = async (req, res, next) => {
   try {
