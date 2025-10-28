@@ -1,11 +1,16 @@
-import { fetchGithubUser } from "../services/oauth/github.service.js";
+import { fetchGitHubUser } from "../services/oauth/github.service.js";
 import { fetchDiscordUser } from "../services/oauth/discord.service.js";
 import { handleOAuthUser } from "../services/oauth.service.js";
 
 export const githubCallback = async (req, res, next) => {
   try {
     const { code } = req.body;
-    const profile = await fetchGithubUser(code);
+    if (!code) {
+      const err = new Error('Code is required');
+      err.statusCode = 400;
+      return next(err);
+    }
+    const profile = await fetchGitHubUser(code);
     const { user, token } = await handleOAuthUser("github", profile);
     res.json({ user, token });
   } catch (err) {
@@ -17,6 +22,11 @@ export const githubCallback = async (req, res, next) => {
 export const discordCallback = async (req, res, next) => {
   try {
     const { code } = req.body;
+    if (!code) {
+      const err = new Error('Code is required');
+      err.statusCode = 400;
+      return next(err);
+    }
     const profile = await fetchDiscordUser(code);
     const { user, token } = await handleOAuthUser("discord", profile);
     res.json({ user, token });

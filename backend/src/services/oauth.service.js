@@ -9,6 +9,7 @@ export async function handleOAuthUser(provider, profile) {
     error.statusCode = 400;
     throw error;
   }
+
   let user = await User.findOne({ email });
 
   if (!user) {
@@ -18,17 +19,12 @@ export async function handleOAuthUser(provider, profile) {
       avatar,
       provider,
       providerId,
-      isOAuth: true,
     });
   } else {
-    const needsUpdate =
-      user.provider !== provider || !user.providerId || user.providerId !== String(providerId);
-
-    if (needsUpdate) {
+    if (!user.providerId || user.provider !== provider) {
       user.provider = provider;
-      user.providerId = providerId ? String(providerId) : user.providerId;
-      user.avatar = user.avatar || avatar;
-      user.isOAuth = true;
+      user.providerId = providerId;
+      if (!user.avatar && avatar) user.avatar = avatar;
       await user.save();
     }
   }

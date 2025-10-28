@@ -50,6 +50,24 @@
           }
         </div>
 
+        <div class="mt-6 flex flex-col space-y-3">
+          <button
+            type="button"
+            (click)="onDiscordLogin()"
+            class="flex items-center justify-center bg-[#5865F2] text-white px-4 py-2 rounded-full hover:opacity-90 transition"
+          >
+            <img src="assets/icons/discord.svg" class="w-5 h-5 mr-2" /> Continue with Discord
+          </button>
+
+          <button
+            type="button"
+            (click)="onGithubLogin()"
+            class="flex items-center justify-center bg-black text-white px-4 py-2 rounded-full hover:opacity-90 transition"
+          >
+            <img src="assets/icons/github.svg" class="w-5 h-5 mr-2" /> Continue with GitHub
+          </button>
+        </div>
+
         <div class="flex justify-between items-center">
           <button
             type="submit"

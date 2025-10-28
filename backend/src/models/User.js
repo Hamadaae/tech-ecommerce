@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   providerId: { type: String, index: true, sparse: true },
   avatar: { type: String },
 
-  isOAuth: { type: Boolean, default: false }
+  isOAuth: { type: Boolean, default: false },
 }, { timestamps: true });
 
 userSchema.methods.toJSON = function () {
@@ -19,8 +19,5 @@ userSchema.methods.toJSON = function () {
   return user;
 };
 
-userSchema.methods.isOAuthUser = function() {
-  return !!this.isOAuth;
-};
 
 export default mongoose.models.User || mongoose.model('User', userSchema);

@@ -187,4 +187,41 @@ export class AuthEffect {
       ),
     { dispatch: false }
   );
+
+   oauthLogin$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.oauthLogin),
+      mergeMap(({ provider, code }) =>
+        this.authService.oauthLogin(provider, code).pipe(
+          map((response) =>
+            AuthActions.oauthLoginSuccess({
+              user: response.user,
+              token: response.token,
+            })
+          ),
+          catchError((error) =>
+            of(
+              AuthActions.oauthLoginFailure({
+                error: error.message || 'OAuth login failed',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
+  oauthLoginSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.oauthLoginSuccess),
+        tap(({ user, token }) => {
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.router.navigate(['/']);
+        })
+      ),
+    { dispatch: false }
+  );
 }  
+
