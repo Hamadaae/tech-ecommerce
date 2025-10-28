@@ -23,7 +23,7 @@ router.post('/login' , [
 router.get('/me' , authMiddleware , me)
 
 
-router.put('/:id' , authMiddleware, updateUser)
-router.delete('/:id', authMiddleware, deleteUser)
+router.put('/me' , authMiddleware, updateUser)
+router.delete('/me', authMiddleware, deleteUser)
 
 export default router

@@ -9,6 +9,7 @@ export interface AuthResponse {
 }
 
 const AUTH_API = '/api/auth';
+const OAUTH_API = '/api/oauth'
 
 @Injectable({
   providedIn: 'root',
