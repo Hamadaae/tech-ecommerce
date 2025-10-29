@@ -1,135 +1,272 @@
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-:root { font-family: 'Inter', sans-serif; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+  :root {
+    font-family: 'Inter', sans-serif;
+  }
 </style>
 
-<div class="min-h-screen bg-gray-50 p-4 sm:p-8">
-    <div class="max-w-7xl mx-auto">
-        
-        <!-- Back Button -->
-        <a [routerLink]="['/products']" class="text-indigo-600 hover:text-indigo-800 font-medium mb-6 inline-flex items-center transition duration-150">
-            <svg class="w-4 h-4 mr-1 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            Back to Products
-        </a>
+<div class="min-h-screen bg-[#E5E5E5] py-10">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- Back Link -->
+    <a
+      [routerLink]="['/products']"
+      class="text-[#14213D] hover:text-indigo-600 font-semibold flex items-center mb-8 transition"
+    >
+      <svg
+        class="w-5 h-5 mr-1 transform rotate-180"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M14 5l7 7m0 0l-7 7m7-7H3"
+        ></path>
+      </svg>
+      Back to Products
+    </a>
 
-        <!-- Loading State -->
-        <ng-container *ngIf="loading$ | async">
-            <div class="flex flex-col justify-center items-center h-64 bg-white rounded-xl shadow-lg mt-4">
-                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
-                <p class="mt-4 text-xl text-indigo-600 font-semibold">Loading product details...</p>
-            </div>
-        </ng-container>
-        
-        <!-- Error State -->
-        <ng-container *ngIf="error$ | async as error">
-            <div *ngIf="!(loading$ | async)" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-xl shadow-md mt-4" role="alert">
-                <p class="font-bold text-lg">Error loading product details!</p>
-                <p class="mt-1">{{ error }}</p>
-            </div>
-        </ng-container>
-        
-        <!-- Product Found State -->
-        <ng-container *ngIf="product$ | async as product">
-            <div class="bg-white rounded-xl shadow-2xl p-6 lg:p-10 mt-4">
-                
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    
-                    <!-- Left Column: Images (Col Span 5) -->
-                    <div class="lg:col-span-5 space-y-4">
-                        <!-- Main Image -->
-                        <div class="relative rounded-xl overflow-hidden shadow-xl aspect-square">
-                            <img [src]="hoveredImage || product?.thumbnail || product?.images?.[0]" 
-                                 onerror="this.onerror=null; this.src='https://placehold.co/800x800/2563EB/ffffff?text=Main+Product+Image';" 
-                                 alt="{{ product?.title }}" 
-                                 class="w-full h-full object-cover">
-                            
-                            <span *ngIf="product?.discountPercentage" 
-                                class="absolute top-4 left-4 bg-red-600 text-white text-md font-bold px-4 py-1.5 rounded-full shadow-lg">
-                                SAVE {{ product?.discountPercentage }}%
-                            </span>
-                        </div>
-                        
-                        <!-- Thumbnail Grid -->
-                        <!-- <div class="grid grid-cols-4 gap-3">
-                            <ng-container *ngIf="product?.images?.length > 0">
-                                <div *ngFor="let image of product?.images; index as i" 
-                                    class="rounded-lg overflow-hidden h-20 border-2 border-gray-200 hover:border-indigo-500 transition cursor-pointer shadow-sm"
-                                   (mouseenter)="setHoverImage(image)"
-                                   (mouseleave)="setHoverImage(null)">
-                                    <img [src]="image" 
-                                        onerror="this.onerror=null; this.src='https://placehold.co/200x200/4F46E5/ffffff?text=Img'+ (i+1);" 
-                                        alt="Product image {{ i + 1 }}" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                            </ng-container>
-                        </div> -->
-                    </div>
-                    
-                    <!-- Right Column: Details & Pricing (Col Span 7) -->
-                    <div class="lg:col-span-7 space-y-6">
-                        <span class="text-sm font-semibold text-indigo-600 uppercase tracking-widest">{{ product?.category }}</span>
-                        <h1 class="text-5xl font-extrabold text-gray-900 leading-tight">{{ product?.title }}</h1>
-                        
-                        <!-- Price and Rating Row -->
-                        <div class="flex items-center space-x-6 border-b pb-4">
-                            <div>
-                                <div *ngIf="product?.discountPercentage" class="text-sm text-gray-500 line-through">
-                                    ${{ product?.price | number:'1.2-2' }}
-                                </div>
-                                <p class="text-3xl font-extrabold text-gray-900">
-                                    ${{ getFinalPrice(product) | number:'1.2-2' }}
-                                </p>
-                            </div>
-                            <div class="flex items-center text-yellow-500 text-sm">
-                                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.636-.921 1.936 0l1.243 3.824a1 1 0 00.95.691h4.027c.969 0 1.371 1.24.588 1.83l-3.264 2.373a1 1 0 00-.364 1.118l1.243 3.824c.3.921-.755 1.688-1.54 1.118l-3.264-2.373a1 1 0 00-1.176 0l-3.264 2.373c-.784.57-1.84-.197-1.54-1.118l1.243-3.824a1 1 0 00-.364-1.118L2.094 9.272c-.783-.59-.38-1.83.588-1.83h4.027a1 1 0 00.95-.691l1.243-3.824z"></path></svg>
-                                <span class="font-bold text-gray-700">{{ product?.rating ? (product?.rating | number:'1.1-1') : 'N/A' }}</span>
-                            </div>
-                        </div>
+    <!-- Loading -->
+    <ng-container *ngIf="loading$ | async">
+      <div class="flex flex-col justify-center items-center h-64 bg-white rounded-xl shadow-md">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-4 border-t-indigo-500 border-gray-300"
+        ></div>
+        <p class="mt-4 text-[#14213D] font-semibold">Loading product...</p>
+      </div>
+    </ng-container>
 
-                        <!-- Price Section -->
-                        <div class="space-y-2">
-                            <p class="text-gray-600">{{ product?.brand }}</p>
-                            <p class="text-gray-700">{{ product?.description }}</p>
-                        </div>
-                        
-                        <!-- Description -->
-                    </div>
+    <!-- Error -->
+    <ng-container *ngIf="error$ | async as error">
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-xl shadow-md">
+        <p class="font-bold text-lg">Error loading product</p>
+        <p class="mt-1">{{ error }}</p>
+      </div>
+    </ng-container>
+
+    <!-- Product -->
+    <ng-container *ngIf="product$ | async as product">
+      <div class="bg-white shadow-2xl rounded-2xl overflow-hidden p-8">
+        <div class="grid lg:grid-cols-12 gap-10">
+          <!-- Images -->
+          <div class="lg:col-span-5">
+            <div class="relative rounded-xl overflow-hidden shadow-xl">
+              <img
+                [src]="hoveredImage || product?.thumbnail || product?.images?.[0]"
+                class="w-full aspect-square object-cover"
+                alt="{{ product?.title }}"
+                onerror="this.src='https://placehold.co/800x800/FCA311/fff?text=No+Image';"
+              />
+              <span
+                *ngIf="product?.discountPercentage"
+                class="absolute top-4 left-4 bg-red-600 text-white text-md font-bold px-4 py-1.5 rounded-full"
+              >
+                -{{ product?.discountPercentage }}%
+              </span>
+            </div>
+
+            <div class="grid grid-cols-5 gap-3 mt-4">
+              <div
+                *ngFor="let img of product?.images"
+                class="rounded-lg overflow-hidden border-2 border-transparent hover:border-indigo-600 cursor-pointer"
+                (mouseenter)="setHoverImage(img)"
+                (mouseleave)="setHoverImage(null)"
+              >
+                <img [src]="img" class="w-full h-20 object-cover" alt="product image" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="lg:col-span-7 space-y-6">
+            <div>
+              <span class="uppercase text-sm tracking-wide font-semibold text-indigo-600">
+                {{ product?.category }}
+              </span>
+              <h1 class="text-4xl font-extrabold text-[#14213D] mt-2">
+                {{ product?.title }}
+              </h1>
+              <p class="text-gray-500 mt-1">{{ product?.brand }}</p>
+            </div>
+
+            <!-- Price + Rating -->
+            <div class="flex items-center justify-between border-b pb-4">
+              <div>
+                <p *ngIf="product?.discountPercentage" class="text-gray-400 line-through text-sm">
+                  ${{ product?.price | number : '1.2-2' }}
+                </p>
+                <p class="text-3xl font-bold text-[#000000]">
+                  ${{ getFinalPrice(product) | number : '1.2-2' }}
+                </p>
+              </div>
+
+              <!-- Rating (safe) -->
+              <div class="flex items-center text-sm mb-3">
+                <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
+                  <svg
+                    class="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    [ngClass]="{
+                      'text-amber-500': i < (product?.rating ?? 0),
+                      'text-gray-300': i >= (product?.rating ?? 0)
+                    }"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M9.049 2.927c.3-.921 1.636-.921 1.936 0l1.243 3.824a1 1 0 00.95.691h4.027c.969 0 1.371 1.24.588 1.83l-3.264 2.373a1 1 0 00-.364 1.118l1.243 3.824c.3.921-.755 1.688-1.54 1.118l-3.264-2.373a1 1 0 00-1.176 0l-3.264 2.373c-.784.57-1.84-.197-1.54-1.118l1.243-3.824a1 1 0 00-.364-1.118L2.094 9.272c-.783-.59-.38-1.83.588-1.83h4.027a1 1 0 00.95-.691l1.243-3.824z"
+                    />
+                  </svg>
+                </ng-container>
+
+                <span class="ml-2 text-gray-600 font-medium">
+                  {{ product?.rating ?? 0 | number : '1.1-1' }} / 5
+                </span>
+              </div>
+            </div>
+
+            <!-- Stock & Info -->
+            <div class="space-y-2 text-gray-700">
+              <p>
+                <span class="font-semibold">Availability:</span>
+                <span
+                  [ngClass]="{
+                    'text-green-600 font-semibold': product?.stock! > 0,
+                    'text-red-600 font-semibold': product?.stock! === 0
+                  }"
+                >
+                  {{ product?.stock! > 0 ? 'In Stock' : 'Out of Stock' }}
+                </span>
+              </p>
+              <p><span class="font-semibold">SKU:</span> {{ product?.sku || 'N/A' }}</p>
+              <p *ngIf="product?.dimensions">
+                <span class="font-semibold">Dimensions:</span>
+                {{ product?.dimensions?.width }} × {{ product?.dimensions?.height }} ×
+                {{ product?.dimensions?.depth }} cm
+              </p>
+              <p *ngIf="product?.weight">
+                <span class="font-semibold">Weight:</span> {{ product?.weight }} kg
+              </p>
+            </div>
+
+            <!-- Description -->
+            <p class="text-gray-800 leading-relaxed">
+              {{ product?.description }}
+            </p>
+
+            <!-- Tags -->
+            <div *ngIf="product?.tags?.length" class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let tag of product?.tags"
+                class="bg-[#14213D] text-white text-xs font-semibold px-3 py-1 rounded-full"
+              >
+                #{{ tag }}
+              </span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center gap-4 pt-4">
+              <button
+                (click)="addToCart(product); $event.stopPropagation()"
+                class="mt-4 w-[30%] border-2 border-indigo-600 text-indigo-600 font-semibold py-2 rounded-lg hover:bg-indigo-50 transition duration-150 shadow-sm flex items-center justify-center gap-2"
+              >
+                <mat-icon class="text-indigo-600">shopping_cart</mat-icon>
+                Add to Cart
+              </button>
+            </div>
+
+            <!-- Extra Info -->
+            <div class="border-t pt-4 text-sm text-gray-600 space-y-1">
+              <p *ngIf="product?.warrentyInformation" class="flex items-center gap-2">
+                <mat-icon class="text-[#14213D]">security</mat-icon>
+                <b>Warranty:</b> {{ product?.warrentyInformation }}
+              </p>
+              <p *ngIf="product?.shippingInformation" class="flex items-center gap-2">
+                <mat-icon class="text-[#14213D]">local_shipping</mat-icon>
+                <b>Shipping:</b> {{ product?.shippingInformation }}
+              </p>
+              <p *ngIf="product?.availabilityStatus" class="flex items-center gap-2">
+                <mat-icon class="text-[#14213D]">inventory_2</mat-icon>
+                <b>Status:</b> {{ product?.availabilityStatus }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="mt-16 border-t pt-10">
+          <h2 class="text-3xl font-extrabold text-[#14213D] mb-8">
+            Customer Reviews ({{ product?.reviews?.length || 0 }})
+          </h2>
+
+          <div *ngIf="product?.reviews?.length; else noReviews" class="divide-y divide-gray-200">
+            <div *ngFor="let r of product?.reviews" class="py-6 first:pt-0 last:pb-0">
+              <div class="flex flex-col">
+                <!-- Reviewer Info -->
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-[#14213D]">person</mat-icon>
+                  <p class="font-semibold text-[#14213D] text-lg">
+                    {{ r.reviewerName || 'Anonymous' }}
+                  </p>
                 </div>
-                
-                <!-- Reviews Section -->
-                <div class="mt-16 border-t pt-10">
-                    <h2 class="text-3xl font-extrabold text-gray-900 mb-6">Customer Reviews ({{ product?.reviews?.length || 0 }})</h2>
-                    
-                    <div *ngIf="product?.reviews?.length" class="space-y-6">
-                        <div *ngFor="let r of product?.reviews" class="p-4 bg-gray-50 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-semibold">{{ r.reviewerName || 'Anonymous' }}</p>
-                                    <p class="text-sm text-gray-500">{{ r.date ? (r.date | date) : '' }}</p>
-                                </div>
-                                <div class="text-yellow-500">{{ r.rating || '-' }}</div>
-                            </div>
-                            <p class="mt-2 text-gray-700">{{ r.comment }}</p>
-                        </div>
-                    </div> 
-                    <p *ngIf="!product?.reviews?.length" class="text-gray-500 italic">
-                        No reviews yet. Be the first to review this product.
-                    </p>
-                </div>
-            </div>
-        </ng-container>
 
-        <!-- Product Not Found State -->
-        <ng-container *ngIf="!(loading$ | async) && !(product$ | async) && !(error$ | async)">
-             <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-xl shadow-md mt-4" role="alert">
-                <p class="font-bold text-lg">Product Not Found!</p>
-                <p class="mt-1">We couldn't locate the product you are looking for. It may have been discontinued.</p>
-                <a [routerLink]="['/products']" class="mt-4 inline-block text-sm font-medium text-yellow-600 hover:text-yellow-800 underline transition">
-                    ← Browse All Products
-                </a>
+                <!-- Stars -->
+                <div class="flex items-center gap-1 mt-1">
+                  <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
+                    <mat-icon
+                      class="text-base"
+                      [ngClass]="i < r.rating ? 'text-[#FCA311]' : 'text-gray-300'"
+                      >star</mat-icon
+                    >
+                  </ng-container>
+                </div>
+
+                <!-- Date -->
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ r.date ? (r.date | date : 'mediumDate') : '' }}
+                </p>
+
+                <!-- Review comment -->
+                <p class="mt-3 text-gray-700 leading-relaxed">
+                  {{ r.comment || 'No comment provided.' }}
+                </p>
+
+                <!-- Buttons -->
+                <div class="flex items-center gap-4 mt-4 text-sm">
+                  <button
+                    class="flex items-center gap-1 text-[#14213D] hover:text-[#FCA311] transition"
+                  >
+                    <mat-icon class="text-base">thumb_up</mat-icon>
+                    Helpful
+                  </button>
+                  <button
+                    class="flex items-center gap-1 text-gray-500 hover:text-red-500 transition"
+                  >
+                    <mat-icon class="text-base">flag</mat-icon>
+                    Report
+                  </button>
+                </div>
+              </div>
             </div>
-        </ng-container>
-    </div>
+          </div>
+
+          <!-- No Reviews -->
+          <ng-template #noReviews>
+            <p class="italic text-gray-500 bg-gray-50 py-6 px-4 rounded-lg text-center">
+              No reviews yet. Be the first to review this product!
+            </p>
+          </ng-template>
+
+          <!-- Review Form (Placeholder) -->
+          <div class="mt-10 bg-gray-50 rounded-lg p-8">
+            <h3 class="text-xl font-semibold text-[#14213D] mb-2">Write a Review</h3>
+            <p class="text-sm text-gray-600 italic">(Feature coming soon)</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
 </div>

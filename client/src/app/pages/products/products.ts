@@ -1,4 +1,3 @@
-// products.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -12,17 +11,20 @@ import { OrderItem } from '../../core/models/order.model';
 import { PaginationMeta } from '../../store/products/product.models';
 import { take } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { MatIconModule } from '@angular/material/icon';
+import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule],
   templateUrl: './products.html',
 })
 export class ProductsComponent implements OnInit {
   private store = inject(Store<AppState>);
   private cartService = inject(CartService);
   private route = inject(ActivatedRoute);
+  private wishlistService = inject(WishlistService);
 
   products$ = this.store.select(ProductSelectors.selectAllProducts);
   meta$ = this.store.select(ProductSelectors.selectProductsMeta);
@@ -36,18 +38,12 @@ export class ProductsComponent implements OnInit {
   private defaultLimit = 8;
 
   ngOnInit(): void {
-    // react to search query param (debounced)
     this.route.queryParamMap
-      .pipe(
-        map(params => params.get('search') || ''),
-        debounceTime(300),
-        distinctUntilChanged()
-      )
+      .pipe(map(params => params.get('search') || ''), debounceTime(300), distinctUntilChanged())
       .subscribe(searchTerm => {
         this.loadProducts(1, this.defaultLimit, searchTerm);
       });
 
-    // initial load
     const initialSearch = this.route.snapshot.queryParamMap.get('search') || '';
     this.loadProducts(1, this.defaultLimit, initialSearch);
   }
@@ -64,15 +60,12 @@ export class ProductsComponent implements OnInit {
     );
   }
 
-  // filter helpers
   filterByCategory(category: string): void {
     if (this.selectedCategory === category) {
-      // toggle off if clicking same
       this.selectedCategory = null;
     } else {
       this.selectedCategory = category;
     }
-    // reload page 1 with chosen filter
     const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
     this.loadProducts(1, this.defaultLimit, currentSearch);
   }
@@ -83,19 +76,15 @@ export class ProductsComponent implements OnInit {
     this.loadProducts(1, this.defaultLimit, currentSearch);
   }
 
-  // sort change (value example: 'price:asc' or 'rating:desc')
-onSortChange(event: Event): void {
-  const target = event.target as HTMLSelectElement;
-  const raw = target.value || ''; // e.g. "price-asc" or "rating-desc" or ""
-  // map hyphen to colon so backend receives "price:asc" form
-  const normalized = raw.includes('-') ? raw.replace('-', ':') : raw;
-  this.selectedSort = normalized; // e.g. "price:asc"
+  onSortChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const raw = target.value || '';
+    const normalized = raw.includes('-') ? raw.replace('-', ':') : raw;
+    this.selectedSort = normalized;
+    const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
+    this.loadProducts(1, this.defaultLimit, currentSearch);
+  }
 
-  const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
-  this.loadProducts(1, this.defaultLimit, currentSearch);
-}
-
-  // pagination: preserve current limit and search
   changePage(page: number): void {
     this.meta$.pipe(take(1)).subscribe(meta => {
       const currentLimit = meta ? meta.limit : this.defaultLimit;
@@ -104,7 +93,6 @@ onSortChange(event: Event): void {
     });
   }
 
-  // price helper
   getFinalPrice(product: Product): number | undefined {
     if (product.price && product.discountPercentage) {
       return Math.round(product.price * (1 - product.discountPercentage / 100) * 100) / 100;
@@ -134,5 +122,25 @@ onSortChange(event: Event): void {
 
   trackByProductId(index: number, product: any): string | number {
     return product?._id ?? product?.id ?? index;
+  }
+
+  // ✅ Wishlist logic (added)
+  toggleWishlist(product: Product): void {
+    if (!product?._id) return;
+
+    if (this.wishlistService.isInWishlist(product._id)) {
+      this.wishlistService.removeItem(product._id);
+    } else {
+      this.wishlistService.addItem({
+        product: product._id,
+        name: product.title ?? 'Unnamed Product',
+        price: this.getFinalPrice(product) ?? product.price ?? 0,
+        image: product.thumbnail,
+      });
+    }
+  }
+
+  isInWishlist(product: Product): boolean {
+    return !!product?._id && this.wishlistService.isInWishlist(product._id);
   }
 }
