@@ -3,7 +3,7 @@
   <div>Mon–Thu: <span class="font-semibold">9:00 AM – 5:30 PM</span></div>
   <div>
     Visit our showroom in 1234 Street Address City Address, 1234
-    <a href="#" class="underline hover:text-gray-300 ml-2">Contact Us</a>
+    <a routerLink="/contactus" href="#" class="underline hover:text-gray-300 ml-2">Contact Us</a>
   </div>
   <div class="flex items-center gap-3">
     <span>Call Us: (00) 1234 5678</span>
@@ -47,13 +47,19 @@
     >
       <a
         routerLink="/products"
-        class="flex items-center gap-1 hover:text-blue-600 transition-colors"
+        class="flex items-center gap-2 hover:text-blue-600 transition-colors"
       >
-        <mat-icon>category</mat-icon>
-        <span class="hidden sm:inline">Products</span>
+        <span class="hidden sm:inline">Shop Now</span>
+      </a>
+      <a
+        routerLink="/contactus"
+        class="flex items-center gap-2 hover:text-blue-600 transition-colors"
+      >
+        <span class="hidden sm:inline">Contact Us</span>
       </a>
     </nav>
 
+    <!-- Cart Icon with Counter -->
     <a
       routerLink="/cart"
       class="relative flex items-center"
@@ -95,56 +101,70 @@
     </ng-template>
   </div>
 
-  <mat-menu #menu="matMenu" class="!p-0">
+  <!--  Refined Dropdown -->
+  <mat-menu #menu="matMenu" class="!p-0 !rounded-xl !overflow-hidden !shadow-xl">
     <ng-container *ngIf="(user$ | async)?.role === 'admin'; else normalUserMenu">
       <button
         mat-menu-item
         (click)="logout()"
-        class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
+        class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
       >
-        <mat-icon class="mr-2">logout</mat-icon>
-        <span>Sign Out</span>
+        <mat-icon class="text-gray-600">logout</mat-icon>
+        <span class="text-gray-800 font-medium">Sign Out</span>
       </button>
     </ng-container>
 
     <ng-template #normalUserMenu>
-      <div class="w-48 py-2 bg-white rounded-lg shadow-lg">
+      <div class="w-56 bg-white">
+        <!-- Profile -->
         <button
           mat-menu-item
           routerLink="/profile"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
         >
-          <mat-icon class="mr-2">person</mat-icon>
-          <span>Profile</span>
+          <mat-icon class="text-blue-600">person</mat-icon>
+          <span class="text-gray-800 font-medium">Profile</span>
         </button>
 
+        <!-- Orders -->
         <button
           mat-menu-item
           routerLink="/orders"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
         >
-          <mat-icon class="mr-2">receipt_long</mat-icon>
-          <span>Orders</span>
+          <mat-icon class="text-amber-600">receipt_long</mat-icon>
+          <span class="text-gray-800 font-medium">Orders</span>
         </button>
 
         <button
           mat-menu-item
           routerLink="/wishlist"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
+          class="!flex !items-center !justify-between hover:!bg-gray-50 !rounded-none px-4 py-3"
         >
-          <mat-icon class="mr-2">favorite</mat-icon>
-          <span>Wishlist</span>
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-red-600">favorite</mat-icon>
+            <span class="text-gray-800 font-medium">Wishlist</span>
+            <div class="flex items-center justify-center min-w-[22px]">
+              <span
+                *ngIf="wishlistItemCount > 0"
+                class="bg-red-600 text-white text-[11px] font-bold px-2 py-[2px] rounded-full leading-none"
+              >
+                {{ wishlistItemCount }}
+              </span>
+            </div>
+          </div>
         </button>
 
-        <div class="border-t my-2 mx-2"></div>
+        <div class="border-t border-gray-200 my-1"></div>
 
+        <!-- Logout -->
         <button
           mat-menu-item
           (click)="logout()"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
         >
-          <mat-icon class="mr-2">logout</mat-icon>
-          <span>Sign Out</span>
+          <mat-icon class="text-gray-600">logout</mat-icon>
+          <span class="text-gray-800 font-medium">Sign Out</span>
         </button>
       </div>
     </ng-template>

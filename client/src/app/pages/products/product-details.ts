@@ -10,12 +10,13 @@ import { switchMap, tap } from 'rxjs/operators';
 import { CartService } from '../../core/services/cart.service';
 import { OrderItem } from '../../core/models/order.model';
 import { of } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
   // CommonModule and RouterModule are sufficient for template directives and routerLink
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule],
   templateUrl: './product-details.html',
 })
 export class ProductDetailsComponent implements OnInit {
