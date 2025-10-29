@@ -48,6 +48,11 @@ export const routes: Routes = [
     canActivate: [isAppReadyGuard, AuthGuard],
   },
   {
+    path: 'contactus',
+    loadComponent: () => import('./pages/contactus/contactus').then((m) => m.Contactus),
+    canActivate: [isAppReadyGuard],
+  },
+  {
     path: 'auth',
     canActivate: [isAppReadyGuard],
     children: [
