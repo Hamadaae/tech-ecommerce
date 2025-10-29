@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
-// Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -13,7 +12,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 
-// Store selectors/actions
 import { isLoggedIn, selectUser } from '../../../store/auth/auth.selectors';
 import { logout } from '../../../store/auth/auth.actions';
 
@@ -60,7 +58,6 @@ export class Navbar implements OnDestroy {
     this.isLoggedIn$ = this.store.select(isLoggedIn);
     this.user$ = this.store.select(selectUser);
 
-    // Initialize and subscribe to cart count updates
     this.cartItemCount = this.cartService.getCount();
     this.cartUnsubscribe = this.cartService.onChange(() => {
       this.cartItemCount = this.cartService.getCount();

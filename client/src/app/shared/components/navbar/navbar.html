@@ -83,12 +83,20 @@
       <button
         mat-button
         [matMenuTriggerFor]="menu"
-        class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-100 transition"
+        class="flex items-center gap-3 px-2 py-1 rounded-md hover:bg-gray-100 transition-all"
+        *ngIf="user$ | async as user"
       >
-        <span class="font-medium text-gray-800" *ngIf="user$ | async as user">
-          {{ user?.name || user?.email }}
-        </span>
-        <mat-icon>expand_more</mat-icon>
+        <img
+          [src]="user?.avatar || 'assets/icons/user.svg'"
+          alt="User Avatar"
+          class="w-8 h-8 rounded-full object-cover border border-gray-300"
+        />
+        <div class="flex items-center gap-1">
+          <span class="font-medium text-gray-800 truncate max-w-[140px]">
+            {{ user?.name || user?.email }}
+          </span>
+          <mat-icon class="text-gray-600 text-lg">expand_more</mat-icon>
+        </div>
       </button>
     </ng-template>
   </div>
