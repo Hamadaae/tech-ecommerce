@@ -4,4 +4,5 @@ dist/
 README.md
 Orders.md
 samples
+.env
 Visual Flow of Orders.md

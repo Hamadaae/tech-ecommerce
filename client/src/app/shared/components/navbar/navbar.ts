@@ -17,6 +17,7 @@ import { logout } from '../../../store/auth/auth.actions';
 
 // Services
 import { CartService } from '../../../core/services/cart.service';
+import { WishlistService } from '../../../core/services/wishlist.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
@@ -39,16 +40,19 @@ export class Navbar implements OnDestroy {
   isLoggedIn$: Observable<boolean>;
   user$: Observable<any>;
   cartItemCount = 0;
+  wishlistItemCount = 0; // ✅ Added property for wishlist count
   searchTerm = '';
   showMobileSearch = false;
 
   private subs = new Subscription();
   private cartUnsubscribe?: () => void;
+  private wishlistUnsubscribe?: () => void; // ✅ Added unsubscribe for wishlist
 
   constructor(
     private store: Store,
     private router: Router,
     private cartService: CartService,
+    private wishlistService: WishlistService, // ✅ Injected wishlist service
     private notificationService: NotificationService
   ) {
     this.isLoggedIn$ = this.store.select(isLoggedIn);
@@ -59,6 +63,16 @@ export class Navbar implements OnDestroy {
       this.cartItemCount = this.cartService.getCount();
     });
 
+<<<<<<< HEAD
+=======
+    // ✅ Initialize and subscribe to wishlist count updates
+    this.wishlistItemCount = this.wishlistService.getCount();
+    this.wishlistUnsubscribe = this.wishlistService.onChange(() => {
+      this.wishlistItemCount = this.wishlistService.getCount();
+    });
+
+    // Optional: subscribe to notifications
+>>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
     this.subs.add(
       this.notificationService.notifications$.subscribe((n) =>
         console.log('Notification:', n)
@@ -68,6 +82,7 @@ export class Navbar implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.cartUnsubscribe) this.cartUnsubscribe();
+    if (this.wishlistUnsubscribe) this.wishlistUnsubscribe(); // ✅ cleanup
     this.subs.unsubscribe();
   }
 

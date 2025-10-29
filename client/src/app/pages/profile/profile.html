@@ -41,15 +41,23 @@
         </div>
       </aside>
 
-      <!-- Main content (Card layout) -->
+      <!-- Main content -->
       <main class="lg:col-span-9">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Profile Card -->
           <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-start gap-6">
-              <div class="flex-1">
-                <h2 class="text-lg font-semibold mb-1">Profile</h2>
-                <ng-container *ngIf="user$ | async as user; else noUser">
+            <ng-container *ngIf="user$ | async as user; else noUser">
+              <div class="flex items-center gap-6">
+                <!-- Avatar -->
+                <img
+                  [src]="user?.avatar || 'assets/icons/user.svg'"
+                  alt="User Avatar"
+                  class="w-20 h-20 rounded-full border object-cover"
+                />
+
+                <!-- Info -->
+                <div class="flex-1">
+                  <h2 class="text-lg font-semibold mb-1">Profile</h2>
                   <p class="text-gray-800 text-xl font-medium">{{ user?.name || 'No name' }}</p>
                   <p class="text-gray-500 mt-1">{{ user?.email || 'No email' }}</p>
 
@@ -63,14 +71,9 @@
                       {{ user.createdAt | date : 'mediumDate' }}
                     </div>
                   </div>
-                </ng-container>
+                </div>
 
-                <ng-template #noUser>
-                  <div class="text-gray-500">Not signed in</div>
-                </ng-template>
-              </div>
-
-              <div class="flex-shrink-0">
+                <!-- Edit Button -->
                 <button
                   (click)="goTo('/profile/info')"
                   class="px-3 py-2 bg-[#14213D] text-white rounded text-sm"
@@ -78,10 +81,14 @@
                   Edit
                 </button>
               </div>
-            </div>
+            </ng-container>
+
+            <ng-template #noUser>
+              <div class="text-gray-500">Not signed in</div>
+            </ng-template>
           </div>
 
-          <!-- Account Summary Card -->
+          <!-- Account Summary -->
           <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold mb-3">Account Summary</h3>
             <div class="text-sm text-gray-700 space-y-3">
