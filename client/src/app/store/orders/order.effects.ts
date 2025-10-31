@@ -90,13 +90,8 @@ export class OrderEffects {
   updateOrderToPaid$ = createEffect(() =>
     this.actions$.pipe(
       ofType(OrderActions.updateOrderToPaid),
-<<<<<<< HEAD
-      mergeMap(({ orderId, paymentResult }) =>
-        this.orderService.updateOrderToPaid(orderId, paymentResult).pipe(
-=======
       mergeMap(({ orderId, sessionId }) =>
         this.orderService.updateOrderToPaid(orderId, sessionId).pipe(
->>>>>>> cd75363 (Payment Stuff)
           map((order) => OrderActions.updateOrderToPaidSuccess({ order })),
           catchError((err: any) =>
             of(

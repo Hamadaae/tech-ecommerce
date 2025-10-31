@@ -39,15 +39,57 @@ export class CheckoutSuccess implements OnInit {
       return;
     }
 
-    this.orderService.updateOrderToPaid(this.orderId, this.sessionId).subscribe({
+    // First, check if the order is already paid (webhook might have already processed it)
+    this.orderService.getOrderById(this.orderId).subscribe({
       next: async (order) => {
-        console.log('Order payment confirmed:', order);
-        this.message = 'Payment confirmed and order marked as paid.';
-        try { await this.cartService.clear(); } catch {}
+        // If order is already paid, clear cart immediately
+        if (order.isPaid && order.paymentStatus === 'paid') {
+          console.log('Order already paid via webhook:', order);
+          this.message = 'Payment confirmed! Your order has been processed.';
+          await this.cartService.clear();
+          return;
+        }
+
+        // If not paid yet, try to update it
+        this.orderService.updateOrderToPaid(this.orderId!, this.sessionId!).subscribe({
+          next: async (updatedOrder) => {
+            console.log('Order payment confirmed:', updatedOrder);
+            this.message = 'Payment confirmed and order marked as paid.';
+            await this.cartService.clear();
+          },
+          error: (err) => {
+            console.error('Failed to confirm payment:', err);
+            // Check again if order was paid by webhook while we were waiting
+            this.orderService.getOrderById(this.orderId!).subscribe({
+              next: async (recheckOrder) => {
+                if (recheckOrder.isPaid && recheckOrder.paymentStatus === 'paid') {
+                  this.message = 'Payment confirmed! Your order has been processed.';
+                  await this.cartService.clear();
+                } else {
+                  this.error = err?.error?.message || 'Failed to finalize order payment.';
+                }
+              },
+              error: () => {
+                this.error = err?.error?.message || 'Failed to finalize order payment.';
+              },
+            });
+          },
+        });
       },
       error: (err) => {
-        console.error('Failed to confirm payment:', err);
-        this.error = err?.error?.message || 'Failed to finalize order payment.';
+        console.error('Failed to load order:', err);
+        // Try to update anyway in case order exists
+        this.orderService.updateOrderToPaid(this.orderId!, this.sessionId!).subscribe({
+          next: async (order) => {
+            console.log('Order payment confirmed:', order);
+            this.message = 'Payment confirmed and order marked as paid.';
+            await this.cartService.clear();
+          },
+          error: (updateErr) => {
+            console.error('Failed to confirm payment:', updateErr);
+            this.error = updateErr?.error?.message || 'Failed to finalize order payment.';
+          },
+        });
       },
     });
   }

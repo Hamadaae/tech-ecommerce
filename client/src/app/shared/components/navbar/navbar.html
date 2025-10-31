@@ -47,21 +47,6 @@
     >
       <a
         routerLink="/products"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        class="flex items-center gap-1 hover:text-blue-600 transition-colors"
-      >
-        <mat-icon>category</mat-icon>
-        <span class="hidden sm:inline">Products</span>
-      </a>
-    </nav>
-
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         class="flex items-center gap-2 hover:text-blue-600 transition-colors"
       >
         <span class="hidden sm:inline">Shop Now</span>
@@ -75,13 +60,6 @@
     </nav>
 
     <!-- Cart Icon with Counter -->
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
     <a
       routerLink="/cart"
       class="relative flex items-center"
@@ -105,13 +83,6 @@
       <button
         mat-button
         [matMenuTriggerFor]="menu"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         class="flex items-center gap-3 px-2 py-1 rounded-md hover:bg-gray-100 transition-all"
         *ngIf="user$ | async as user"
       >
@@ -126,20 +97,6 @@
           </span>
           <mat-icon class="text-gray-600 text-lg">expand_more</mat-icon>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-100 transition"
-      >
-        <span class="font-medium text-gray-800" *ngIf="user$ | async as user">
-          {{ user?.name || user?.email }}
-        </span>
-        <mat-icon>expand_more</mat-icon>
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
       </button>
     </ng-template>
   </div>
@@ -147,61 +104,17 @@
   <!--  Refined Dropdown -->
   <mat-menu #menu="matMenu" class="!p-0 !rounded-xl !overflow-hidden !shadow-xl">
     <ng-container *ngIf="(user$ | async)?.role === 'admin'; else normalUserMenu">
-      <button
-        mat-menu-item
-        (click)="logout()"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
-      >
-        <mat-icon class="mr-2">logout</mat-icon>
-        <span>Sign Out</span>
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
+        <button
+          mat-menu-item
+          (click)="logout()"
         class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
       >
         <mat-icon class="text-gray-600">logout</mat-icon>
         <span class="text-gray-800 font-medium">Sign Out</span>
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
       </button>
     </ng-container>
 
     <ng-template #normalUserMenu>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-      <div class="w-48 py-2 bg-white rounded-lg shadow-lg">
-        <button
-          mat-menu-item
-          routerLink="/profile"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
-        >
-          <mat-icon class="mr-2">person</mat-icon>
-          <span>Profile</span>
-        </button>
-
-        <button
-          mat-menu-item
-          routerLink="/orders"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
-        >
-          <mat-icon class="mr-2">receipt_long</mat-icon>
-          <span>Orders</span>
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
       <div class="w-56 bg-white">
         <!-- Profile -->
         <button
@@ -221,30 +134,11 @@
         >
           <mat-icon class="text-amber-600">receipt_long</mat-icon>
           <span class="text-gray-800 font-medium">Orders</span>
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         </button>
 
         <button
           mat-menu-item
           routerLink="/wishlist"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
-        >
-          <mat-icon class="mr-2">favorite</mat-icon>
-          <span>Wishlist</span>
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
           class="!flex !items-center !justify-between hover:!bg-gray-50 !rounded-none px-4 py-3"
         >
           <div class="flex items-center gap-3">
@@ -259,32 +153,10 @@
               </span>
             </div>
           </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         </button>
 
         <div class="border-t border-gray-200 my-1"></div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <button
-          mat-menu-item
-          (click)="logout()"
-          class="!flex !items-center hover:bg-gray-100 !rounded-md mx-2"
-        >
-          <mat-icon class="mr-2">logout</mat-icon>
-          <span>Sign Out</span>
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         <!-- Logout -->
         <button
           mat-menu-item
@@ -293,13 +165,6 @@
         >
           <mat-icon class="text-gray-600">logout</mat-icon>
           <span class="text-gray-800 font-medium">Sign Out</span>
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
         </button>
       </div>
     </ng-template>

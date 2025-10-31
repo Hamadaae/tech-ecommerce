@@ -53,8 +53,6 @@ export async function getPaymentIntent(paymentIntentId){
   }
 }
 
-<<<<<<< HEAD
-=======
 export async function createCheckoutSession(order, opts = {}) {
   try {
     if (!order || !order.totalPrice || !Array.isArray(order.orderItems)) {
@@ -139,7 +137,6 @@ export async function getCheckoutSession(sessionId) {
   }
 }
 
->>>>>>> cd75363 (Payment Stuff)
 // export async function handleStripeWebhooks(req,res,next){
 //     try{
 //         const sig = req.headers["stripe-signature"];

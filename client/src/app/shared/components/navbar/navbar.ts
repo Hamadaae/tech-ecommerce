@@ -63,14 +63,6 @@ export class Navbar implements OnDestroy {
       this.cartItemCount = this.cartService.getCount();
     });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
     // ✅ Initialize and subscribe to wishlist count updates
     this.wishlistItemCount = this.wishlistService.getCount();
     this.wishlistUnsubscribe = this.wishlistService.onChange(() => {
@@ -78,13 +70,6 @@ export class Navbar implements OnDestroy {
     });
 
     // Optional: subscribe to notifications
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8203b84d7852e56a9599e1771a2a40d3e5eb4c86
-=======
->>>>>>> 271fbaa2c1667b76edecd72b1da5b8b50548d8fa
-=======
->>>>>>> cd75363 (Payment Stuff)
     this.subs.add(
       this.notificationService.notifications$.subscribe((n) =>
         console.log('Notification:', n)

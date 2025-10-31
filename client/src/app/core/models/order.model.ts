@@ -34,10 +34,7 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded';
   stripePaymentIntentId?: string;
-<<<<<<< HEAD
-=======
   stripeCheckoutSessionId?: string;
->>>>>>> cd75363 (Payment Stuff)
   stripeChargeId?: string;
   stripeReceiptUrl?: string;
   itemsPrice?: number;

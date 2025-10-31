@@ -12,6 +12,9 @@ export const getProducts = async (req, res, next) => {
       sort,            
       page = 1,
       limit = 10,
+      minPrice,
+      maxPrice,
+      stock,
     } = req.query;
 
     const numericPage = Math.max(1, parseInt(page, 10) || 1);
@@ -20,6 +23,20 @@ export const getProducts = async (req, res, next) => {
 
     const filter = {};
     if (category) filter.category = category;
+
+    // Price range filtering
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    // Stock filtering
+    if (stock === 'in_stock') {
+      filter.stock = { $gt: 0 };
+    } else if (stock === 'out_of_stock') {
+      filter.stock = { $lte: 0 };
+    }
 
     const searchTerm = (search || q || '').trim();
     let sortObj = null;

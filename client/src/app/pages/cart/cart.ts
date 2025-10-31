@@ -1,11 +1,4 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy, signal } from '@angular/core';
-<<<<<<< HEAD
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CartService } from '../../core/services/cart.service';
-import { OrderItem } from '../../core/models/order.model';
-import { RouterModule } from '@angular/router';
-=======
 import { CommonModule, DecimalPipe, NgIf, NgForOf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../core/services/cart.service';
@@ -13,26 +6,18 @@ import { OrderItem } from '../../core/models/order.model';
 import { Router, RouterModule } from '@angular/router';
 import { OrderService } from '../../core/services/order.service';
 import { PaymentMethod, Order } from '../../core/models/order.model';
->>>>>>> cd75363 (Payment Stuff)
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-<<<<<<< HEAD
-  imports: [CommonModule, FormsModule, DecimalPipe, RouterModule],
-=======
   imports: [CommonModule, FormsModule, DecimalPipe, RouterModule, NgIf, NgForOf],
->>>>>>> cd75363 (Payment Stuff)
   templateUrl: './cart.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Cart implements OnInit, OnDestroy {
   private cartService = inject(CartService);
-<<<<<<< HEAD
-=======
   private orderService = inject(OrderService);
   private router = inject(Router);
->>>>>>> cd75363 (Payment Stuff)
   private unsubscribeFromCart: (() => void) | null = null;
 
   cartItems = signal<OrderItem[]>([]);
@@ -67,8 +52,6 @@ export class Cart implements OnInit, OnDestroy {
     this.cartService.clear();
   }
 
-<<<<<<< HEAD
-=======
   checkoutCOD(): void {
     const orderItems = this.cartService.getItems();
     if (!orderItems.length) return;
@@ -142,7 +125,6 @@ export class Cart implements OnInit, OnDestroy {
     });
   }
 
->>>>>>> cd75363 (Payment Stuff)
   ngOnDestroy(): void {
     if (this.unsubscribeFromCart) {
       this.unsubscribeFromCart();

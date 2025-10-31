@@ -8,11 +8,7 @@ export const createOrder = createAction(
 
 export const createOrderSuccess = createAction(
   '[Order] Create Order Success',
-<<<<<<< HEAD
-  props<{ order: Order; clientSecret?: string }>()
-=======
   props<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }>()
->>>>>>> cd75363 (Payment Stuff)
 );
 
 export const createOrderFailure = createAction(

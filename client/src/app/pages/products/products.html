@@ -45,14 +45,17 @@
       <div>
         <h4 class="font-semibold text-gray-700 mb-2">Price Range</h4>
         <div class="flex flex-col space-y-2 text-sm">
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="rounded text-indigo-600" /> $0 - $1000
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="rounded text-indigo-600" /> $1000 - $2000
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="rounded text-indigo-600" /> $2000+
+          <label 
+            *ngFor="let range of priceRanges" 
+            class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition-colors"
+          >
+            <input 
+              type="checkbox" 
+              class="rounded text-indigo-600 cursor-pointer" 
+              [checked]="isPriceRangeSelected(range)"
+              (change)="togglePriceRange(range)"
+            /> 
+            {{ range.label }}
           </label>
         </div>
       </div>
@@ -61,11 +64,17 @@
       <div>
         <h4 class="font-semibold text-gray-700 mb-2">Availability</h4>
         <div class="space-y-2 text-sm">
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="rounded text-indigo-600" /> In Stock
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" class="rounded text-indigo-600" /> Out of Stock
+          <label 
+            *ngFor="let option of stockOptions"
+            class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition-colors"
+          >
+            <input 
+              type="checkbox" 
+              class="rounded text-indigo-600 cursor-pointer" 
+              [checked]="isStockFilterSelected(option.value)"
+              (change)="toggleStockFilter(option.value)"
+            /> 
+            {{ option.label }}
           </label>
         </div>
       </div>
