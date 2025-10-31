@@ -104,9 +104,9 @@
   <!--  Refined Dropdown -->
   <mat-menu #menu="matMenu" class="!p-0 !rounded-xl !overflow-hidden !shadow-xl">
     <ng-container *ngIf="(user$ | async)?.role === 'admin'; else normalUserMenu">
-      <button
-        mat-menu-item
-        (click)="logout()"
+        <button
+          mat-menu-item
+          (click)="logout()"
         class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
       >
         <mat-icon class="text-gray-600">logout</mat-icon>

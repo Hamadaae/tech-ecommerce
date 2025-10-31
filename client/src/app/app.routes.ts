@@ -23,6 +23,27 @@ export const routes: Routes = [
     canActivate: [isAppReadyGuard],
   },
   {
+    path: 'checkout',
+    canActivate: [isAppReadyGuard, AuthGuard],
+    children: [
+      {
+        path: 'pay',
+        loadComponent: () => import('./pages/checkout/stripe-pay').then((m) => m.StripePay),
+      },
+      {
+        path: 'success',
+        loadComponent: () => import('./pages/checkout/checkout-success').then((m) => m.CheckoutSuccess),
+      },
+      {
+        path: 'cancel',
+        loadComponent: () => import('./pages/checkout/checkout-cancel').then((m) => m.CheckoutCancel),
+      },
+      {
+        path: '', redirectTo: 'pay', pathMatch: 'full'
+      }
+    ]
+  },
+  {
     path: 'wishlist',
     loadComponent: () => import('./pages/wishlist/wishlist').then((m) => m.Wishlist),
     canActivate: [isAppReadyGuard, AuthGuard],

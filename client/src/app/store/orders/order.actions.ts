@@ -8,7 +8,7 @@ export const createOrder = createAction(
 
 export const createOrderSuccess = createAction(
   '[Order] Create Order Success',
-  props<{ order: Order; clientSecret?: string }>()
+  props<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }>()
 );
 
 export const createOrderFailure = createAction(
@@ -45,7 +45,7 @@ export const loadOrderByIdFailure = createAction(
 
 export const updateOrderToPaid = createAction(
   '[Order] Update Order To Paid',
-  props<{ orderId: string; paymentResult: any }>()
+  props<{ orderId: string; sessionId: string }>()
 );
 
 export const updateOrderToPaidSuccess = createAction(

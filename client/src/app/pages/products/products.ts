@@ -34,6 +34,19 @@ export class ProductsComponent implements OnInit {
   categories: string[] = ['smartphones', 'mobile-accessories', 'laptops', 'tablets'];
   selectedCategory: string | null = null;
   selectedSort: string = '';
+  selectedPriceRanges: Set<string> = new Set();
+  selectedStockFilters: Set<'in_stock' | 'out_of_stock'> = new Set();
+
+  priceRanges = [
+    { label: '$0 - $1000', min: 0, max: 1000 },
+    { label: '$1000 - $2000', min: 1000, max: 2000 },
+    { label: '$2000+', min: 2000, max: undefined },
+  ];
+
+  stockOptions = [
+    { label: 'In Stock', value: 'in_stock' as const },
+    { label: 'Out of Stock', value: 'out_of_stock' as const },
+  ];
 
   private defaultLimit = 8;
 
@@ -49,6 +62,32 @@ export class ProductsComponent implements OnInit {
   }
 
   private loadProducts(page: number, limit: number, search?: string): void {
+    // Calculate price range filters
+    let minPrice: number | undefined;
+    let maxPrice: number | undefined;
+    
+    if (this.selectedPriceRanges.size > 0) {
+      const ranges = Array.from(this.selectedPriceRanges).map(key => {
+        const range = this.priceRanges.find(r => `${r.min}-${r.max || 'inf'}` === key);
+        return range;
+      }).filter(Boolean) as typeof this.priceRanges;
+      
+      if (ranges.length > 0) {
+        minPrice = Math.min(...ranges.map(r => r.min || 0));
+        const maxValues = ranges.map(r => r.max).filter((v): v is number => v !== undefined);
+        maxPrice = maxValues.length > 0 ? Math.max(...maxValues) : undefined;
+      }
+    }
+
+    // Get stock filter (if multiple selected, use the first one, or combine logic)
+    let stockFilter: 'in_stock' | 'out_of_stock' | undefined;
+    if (this.selectedStockFilters.size === 1) {
+      stockFilter = Array.from(this.selectedStockFilters)[0];
+    } else if (this.selectedStockFilters.size === 2) {
+      // If both selected, don't filter by stock
+      stockFilter = undefined;
+    }
+
     this.store.dispatch(
       ProductActions.loadProducts({
         page,
@@ -56,6 +95,9 @@ export class ProductsComponent implements OnInit {
         search,
         category: this.selectedCategory || undefined,
         sort: this.selectedSort || undefined,
+        minPrice,
+        maxPrice,
+        stock: stockFilter,
       })
     );
   }
@@ -72,8 +114,40 @@ export class ProductsComponent implements OnInit {
 
   clearCategoryFilter(): void {
     this.selectedCategory = null;
+    this.selectedPriceRanges.clear();
+    this.selectedStockFilters.clear();
     const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
     this.loadProducts(1, this.defaultLimit, currentSearch);
+  }
+
+  togglePriceRange(range: { label: string; min: number; max?: number }): void {
+    const key = `${range.min}-${range.max || 'inf'}`;
+    if (this.selectedPriceRanges.has(key)) {
+      this.selectedPriceRanges.delete(key);
+    } else {
+      this.selectedPriceRanges.add(key);
+    }
+    const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
+    this.loadProducts(1, this.defaultLimit, currentSearch);
+  }
+
+  toggleStockFilter(stock: 'in_stock' | 'out_of_stock'): void {
+    if (this.selectedStockFilters.has(stock)) {
+      this.selectedStockFilters.delete(stock);
+    } else {
+      this.selectedStockFilters.add(stock);
+    }
+    const currentSearch = this.route.snapshot.queryParamMap.get('search') || '';
+    this.loadProducts(1, this.defaultLimit, currentSearch);
+  }
+
+  isPriceRangeSelected(range: { label: string; min: number; max?: number }): boolean {
+    const key = `${range.min}-${range.max || 'inf'}`;
+    return this.selectedPriceRanges.has(key);
+  }
+
+  isStockFilterSelected(stock: 'in_stock' | 'out_of_stock'): boolean {
+    return this.selectedStockFilters.has(stock);
   }
 
   onSortChange(event: Event): void {

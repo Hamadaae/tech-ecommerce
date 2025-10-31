@@ -1,0 +1,207 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-6">
+      <button 
+        (click)="goBack()" 
+        class="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Orders
+      </button>
+      <h1 class="text-3xl font-bold text-gray-900">Order Details</h1>
+      <p class="text-sm text-gray-500 mt-1">Order ID: {{ order?._id }}</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <p class="text-red-800">{{ error }}</p>
+    </div>
+
+    <!-- Order Content -->
+    <div *ngIf="order && !loading" class="space-y-6">
+      <!-- Order Status Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Payment Status -->
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="text-sm text-gray-500 mb-1">Payment Status</div>
+          <div class="flex items-center">
+            <span [class]="getStatusBadgeClass(order.paymentStatus || 'pending')" 
+                  class="px-3 py-1 rounded-full text-sm font-medium">
+              {{ formatStatus(order.paymentStatus || 'pending') }}
+            </span>
+          </div>
+          <div class="text-xs text-gray-400 mt-2" *ngIf="order.paymentMethod">
+            {{ formatPaymentMethod(order.paymentMethod) }}
+          </div>
+        </div>
+
+        <!-- Delivery Status -->
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="text-sm text-gray-500 mb-1">Delivery Status</div>
+          <div class="flex items-center">
+            <span [class]="getStatusBadgeClass(order.isDelivered ? 'delivered' : 'pending')" 
+                  class="px-3 py-1 rounded-full text-sm font-medium">
+              {{ order.isDelivered ? 'Delivered' : 'Pending' }}
+            </span>
+          </div>
+          <div class="text-xs text-gray-400 mt-2" *ngIf="order.deliveredAt">
+            {{ order.deliveredAt | date:'short' }}
+          </div>
+        </div>
+
+        <!-- Order Date -->
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="text-sm text-gray-500 mb-1">Order Date</div>
+          <div class="text-lg font-semibold text-gray-900">
+            {{ order.createdAt | date:'mediumDate' }}
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            {{ order.createdAt | date:'shortTime' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900">Order Items</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <div *ngFor="let item of order.orderItems; trackBy: trackByProductId" 
+               class="p-6 hover:bg-gray-50 transition-colors">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <!-- Product Image -->
+              <div class="flex-shrink-0">
+                <img 
+                  [src]="item.image || 'https://placehold.co/120x120/6366F1/ffffff?text=No+Image'" 
+                  [alt]="item.name"
+                  (error)="$event.target.src='https://placehold.co/120x120/6366F1/ffffff?text=No+Image'"
+                  class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg border border-gray-200"
+                />
+              </div>
+
+              <!-- Product Details -->
+              <div class="flex-grow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ item.name }}</h3>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
+                  <div>
+                    <span class="font-medium">Quantity:</span> {{ item.quantity }}
+                  </div>
+                  <div>
+                    <span class="font-medium">Unit Price:</span> ${{ item.price | number:'1.2-2' }}
+                  </div>
+                  <div *ngIf="item.discountPercentage && item.discountPercentage > 0">
+                    <span class="font-medium">Discount:</span> 
+                    <span class="text-green-600 font-semibold">{{ item.discountPercentage }}%</span>
+                  </div>
+                  <div *ngIf="item.subTotal">
+                    <span class="font-medium">Subtotal:</span> 
+                    <span class="text-gray-900 font-semibold">${{ item.subTotal | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+
+                <!-- Price Calculation -->
+                <div class="bg-gray-50 rounded-lg p-3 mt-2" *ngIf="item.discountPercentage && item.discountPercentage > 0">
+                  <div class="text-xs text-gray-600 space-y-1">
+                    <div class="flex justify-between">
+                      <span>Original Price:</span>
+                      <span>${{ (item.price * item.quantity) | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="flex justify-between text-green-600">
+                      <span>Discount ({{ item.discountPercentage }}%):</span>
+                      <span>-${{ ((item.price * item.quantity * item.discountPercentage) / 100) | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="flex justify-between font-semibold text-gray-900 pt-1 border-t border-gray-200">
+                      <span>Final Price:</span>
+                      <span>${{ item.subTotal || (item.price * item.quantity * (1 - item.discountPercentage / 100)) | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- View Product Link -->
+              <div class="flex items-start">
+                <a 
+                  [routerLink]="['/products', item.product]"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+                >
+                  View Product
+                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900">Shipping Address</h2>
+        </div>
+        <div class="px-6 py-4">
+          <div class="text-gray-700 space-y-1" *ngIf="order.shippingAddress">
+            <p class="font-medium">{{ order.shippingAddress.address }}</p>
+            <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.postalCode }}</p>
+            <p>{{ order.shippingAddress.country }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900">Order Summary</h2>
+        </div>
+        <div class="px-6 py-4 space-y-3">
+          <div class="flex justify-between text-gray-600">
+            <span>Items Subtotal:</span>
+            <span>${{ order.itemsPrice || 0 | number:'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between text-gray-600" *ngIf="order.shippingPrice && order.shippingPrice > 0">
+            <span>Shipping:</span>
+            <span>${{ order.shippingPrice | number:'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between text-gray-600" *ngIf="order.taxPrice && order.taxPrice > 0">
+            <span>Tax:</span>
+            <span>${{ order.taxPrice | number:'1.2-2' }}</span>
+          </div>
+          <div class="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold text-gray-900">
+            <span>Total:</span>
+            <span class="text-blue-600">${{ order.totalPrice | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Receipt (if available) -->
+      <div class="bg-white rounded-lg shadow overflow-hidden" *ngIf="order.stripeReceiptUrl">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-900">Payment Receipt</h2>
+        </div>
+        <div class="px-6 py-4">
+          <a 
+            [href]="order.stripeReceiptUrl" 
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            View Receipt
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

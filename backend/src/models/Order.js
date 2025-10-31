@@ -73,7 +73,8 @@ const orderSchema = new mongoose.Schema(
     },
 
     // Stripe related fields:
-    stripePaymentIntentId: { type: String }, // from Stripe payment intent
+    stripePaymentIntentId: { type: String }, // legacy: from Stripe payment intent
+    stripeCheckoutSessionId: { type: String }, // from Stripe Checkout Session
     stripeChargeId: { type: String }, // optional - charge id
     stripeReceiptUrl: { type: String }, // optional - receipt link
 

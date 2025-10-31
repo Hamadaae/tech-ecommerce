@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import { createPaymentIntent , getPaymentIntent } from "../services/payment.js";
+import { createCheckoutSession , getCheckoutSession } from "../services/payment.js";
 import { adjustStock } from "../utils/helpers.js";
 
 export const createOrder = async (req, res, next) => {
@@ -18,7 +18,7 @@ export const createOrder = async (req, res, next) => {
       paymentMethod = "stripe",
       taxPrice = 0,
       shippingPrice = 0,
-      stripePaymentIntentId = null,
+      stripeCheckoutSessionId = null,
       isPaid = false,
     } = req.body;
 
@@ -52,16 +52,7 @@ export const createOrder = async (req, res, next) => {
         throw err;
       }
 
-      if (
-        typeof productDoc.minimumOrderQuantity === "number" &&
-        qty < productDoc.minimumOrderQuantity
-      ) {
-        const err = new Error(
-          `Minimum order quantity for ${productDoc.title} is ${productDoc.minimumOrderQuantity}`
-        );
-        err.statusCode = 400;
-        throw err;
-      }
+      // Removed minimumOrderQuantity constraint
 
       if (typeof productDoc.stock === "number" && qty > productDoc.stock) {
         const err = new Error(
@@ -112,7 +103,7 @@ export const createOrder = async (req, res, next) => {
       taxPrice: normalizedTax,
       totalPrice,
       isPaid: false,
-      stripePaymentIntentId,
+      stripeCheckoutSessionId,
       paymentStatus: "pending",
     };
 
@@ -126,19 +117,23 @@ export const createOrder = async (req, res, next) => {
 
     const createdOrder = await Order.create(orderDoc)
 
-    let clientSecret = null
+    let checkoutSessionId = null
+    let checkoutUrl = null
 
     if(paymentMethod.toLowerCase() === 'stripe'){
-      const paymentIntent = await createPaymentIntent(createdOrder)
-      createdOrder.stripePaymentIntentId = paymentIntent.id
+      const origin = req.get('origin') || (req.protocol + '://' + req.get('host'))
+      const session = await createCheckoutSession(createdOrder, { origin })
+      createdOrder.stripeCheckoutSessionId = session.id
       await createdOrder.save()
-      clientSecret = paymentIntent.clientSecret
+      checkoutSessionId = session.id
+      checkoutUrl = session.url
     }
 
     res.status(201).json({
       message: "Order created successfully",
       order: createdOrder,
-      clientSecret
+      checkoutSessionId,
+      checkoutUrl
     });
 
   } catch (error) {
@@ -283,28 +278,35 @@ export const updateOrderToPaid = async (req, res, next) => {
 
     if (order.isPaid) return res.json(order);
 
-    if (req.body.paymentResult && req.body.paymentResult.id) {
+    if (req.body.sessionId) {
       try {
-        const paymentIntentId = req.body.paymentResult.id;
-        const paymentIntent = await getPaymentIntent(paymentIntentId);
+        const sessionId = req.body.sessionId;
+        const session = await getCheckoutSession(sessionId);
 
-        if (!paymentIntent || !["succeeded", "requires_capture"].includes(paymentIntent.status)) {
-          const err = new Error("Payment not confirmed by Stripe");
+        console.log("Updating order to paid:", { orderId: order._id.toString(), sessionId, paymentStatus: session?.payment_status });
+
+        if (!session || session.payment_status !== "paid") {
+          console.error("Session not paid:", { sessionId, paymentStatus: session?.payment_status, sessionExists: !!session });
+          const err = new Error("Checkout Session not paid");
           err.statusCode = 400;
           return next(err);
         }
 
-        if (paymentIntent.metadata && paymentIntent.metadata.orderId) {
-          if (paymentIntent.metadata.orderId !== order._id.toString()) {
-            const err = new Error("PaymentIntent metadata does not match order id");
+        if (session.metadata && session.metadata.orderId) {
+          if (session.metadata.orderId !== order._id.toString()) {
+            const err = new Error("Checkout Session metadata does not match order id");
             err.statusCode = 400;
             return next(err);
           }
         }
 
         const expectedAmount = Math.round(Number(order.totalPrice || 0) * 100);
-        if (typeof paymentIntent.amount === "number" && paymentIntent.amount !== expectedAmount) {
-          const err = new Error("Payment amount does not match order total");
+        const actualAmount = typeof session.amount_total === "number" ? session.amount_total : 0;
+        // Allow for small rounding differences (within 2 cents)
+        const amountDifference = Math.abs(actualAmount - expectedAmount);
+        if (amountDifference > 2) {
+          console.error("Amount mismatch:", { expectedAmount, actualAmount, orderId: order._id.toString(), sessionId });
+          const err = new Error(`Checkout amount does not match order total. Expected: ${expectedAmount}, Got: ${actualAmount}`);
           err.statusCode = 400;
           return next(err);
         }
@@ -322,16 +324,25 @@ export const updateOrderToPaid = async (req, res, next) => {
         order.isPaid = true;
         order.paymentStatus = "paid";
         order.paidAt = new Date();
-        order.stripePaymentIntentId = paymentIntentId;
+        order.stripeCheckoutSessionId = sessionId;
 
-        if (paymentIntent.charges && Array.isArray(paymentIntent.charges.data) && paymentIntent.charges.data.length > 0) {
+        // If payment_intent is expanded, extract charge/receipt
+        const paymentIntent = session.payment_intent;
+        if (paymentIntent && paymentIntent.charges && Array.isArray(paymentIntent.charges.data) && paymentIntent.charges.data.length > 0) {
           const charge = paymentIntent.charges.data[0];
           order.stripeChargeId = charge.id || order.stripeChargeId;
           order.stripeReceiptUrl = charge.receipt_url || order.stripeReceiptUrl;
         }
 
-        order.paymentResult = req.body.paymentResult;
+        order.paymentResult = { id: sessionId, status: session.payment_status };
+        
+        await order.save();
+        console.log("Order marked as paid successfully:", { orderId: order._id.toString(), paymentStatus: order.paymentStatus });
+        
+        const updated = await Order.findById(order._id);
+        return res.json(updated);
       } catch (err) {
+        console.error("Error updating order to paid:", err);
         return next(err);
       }
     } else if (isAdmin) {
@@ -349,21 +360,20 @@ export const updateOrderToPaid = async (req, res, next) => {
       order.paymentStatus = "paid";
       order.paidAt = new Date();
 
-      if (req.body.paymentResult) {
-        order.paymentResult = req.body.paymentResult;
-        if (req.body.paymentResult.id) {
-          order.stripePaymentIntentId = req.body.paymentResult.id;
-        }
+      if (req.body.sessionId) {
+        order.paymentResult = { id: req.body.sessionId, status: "paid" };
+        order.stripeCheckoutSessionId = req.body.sessionId;
       }
+
+      const updated = await order.save();
+      return res.json(updated);
     } else {
-      const err = new Error("paymentResult.id is required to mark order paid");
+      const err = new Error("sessionId is required to mark order paid");
       err.statusCode = 400;
       return next(err);
     }
-
-    const updated = await order.save();
-    res.json(updated);
   } catch (error) {
+    console.error("updateOrderToPaid error:", error);
     next(error);
   }
 };
@@ -390,6 +400,46 @@ export const deleteOrder = async (req, res, next) => {
 
     await order.deleteOne();
     res.json({ message: "Order deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cancelUnpaidOrder = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user.id) {
+      const err = new Error("Authentication required");
+      err.statusCode = 401;
+      return next(err);
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      const err = new Error("Order not found");
+      err.statusCode = 404;
+      return next(err);
+    }
+
+    const isOwner = order.user.toString() === req.user.id.toString();
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isAdmin) {
+      const err = new Error("Unauthorized");
+      err.statusCode = 401;
+      return next(err);
+    }
+
+    if (order.isPaid) {
+      const err = new Error("Cannot cancel a paid order");
+      err.statusCode = 400;
+      return next(err);
+    }
+
+    if (order.stockReserved && !order.isPaid) {
+      await adjustStock(order.orderItems, true);
+    }
+
+    await order.deleteOne();
+    res.json({ message: "Order canceled" });
   } catch (error) {
     next(error);
   }

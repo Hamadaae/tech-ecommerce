@@ -17,7 +17,7 @@ export interface ShippingAddress {
     country : string
 }
 
-export type PaymentMethod = 'stripe'  
+export type PaymentMethod = 'stripe' | 'cash_on_delivery' 
 
 export interface PaymentResult {
     id? : string,
@@ -34,6 +34,7 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded';
   stripePaymentIntentId?: string;
+  stripeCheckoutSessionId?: string;
   stripeChargeId?: string;
   stripeReceiptUrl?: string;
   itemsPrice?: number;

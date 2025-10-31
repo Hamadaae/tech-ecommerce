@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../core/services/order.service';
-import { PaymentMethod, Order } from '../../core/models/order.model'; // ✅ تأكد من المسار الصحيح
+import { CartService } from '../../core/services/cart.service';
+import { PaymentMethod, Order } from '../../core/models/order.model'; 
 
 @Component({
   selector: 'app-stripe-pay',
-  standalone: true, // ⚡ مهم لو انت بتستخدم Angular standalone components
+  standalone: true, 
   imports: [CommonModule, HttpClientModule, FormsModule],
   template: `
     <div class="p-6">
@@ -15,69 +16,59 @@ import { PaymentMethod, Order } from '../../core/models/order.model'; // ✅ ت�
 
       <div *ngIf="error" class="text-red-500">{{ error }}</div>
 
-      <div *ngIf="clientSecret && !paid">
-        <p>Client secret received. Integrate Stripe Elements on the page to complete payment.</p>
-        <button (click)="simulatePayment()" class="px-4 py-2 rounded bg-teal-600 text-white mt-2">
-          Simulate payment (demo)
-        </button>
-      </div>
-
-      <div *ngIf="paid" class="text-green-600">Payment succeeded (simulated).</div>
-
-      <div *ngIf="!clientSecret">
+      <div *ngIf="!checkoutUrl">
         <button (click)="createOrder()" class="px-4 py-2 rounded bg-blue-600 text-white">
           Create Order & Request Payment
         </button>
+      </div>
+      <div *ngIf="checkoutUrl">
+        <p>Redirecting to Stripe Checkout...</p>
       </div>
     </div>
   `,
 })
 export class StripePay implements OnInit {
-  clientSecret: string | null = null;
+  checkoutSessionId: string | null = null;
+  checkoutUrl: string | null = null;
   error: string | null = null;
-  paid = false;
 
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService, private cartService: CartService) {}
 
   ngOnInit(): void {}
 
   createOrder() {
-    // ✅ استخدم نفس structure اللي معرفه في Order model
+    const cartItems = this.cartService.getItems();
+    const itemsPrice = Math.round(this.cartService.getTotal() * 100) / 100;
+    const shippingPrice = 0;
+    const taxPrice = 0;
+    const totalPrice = Math.round((itemsPrice + shippingPrice + taxPrice) * 100) / 100;
+
     const sampleOrder: Partial<Order> = {
-      orderItems: [
-        {
-          product: '64f0d0d...fake',
-          name: 'Demo product',
-          quantity: 1,
-          price: 9.99,
-        },
-      ],
+      orderItems: cartItems,
       shippingAddress: {
         address: 'Demo',
         city: 'Cairo',
         postalCode: '11511',
         country: 'Egypt',
       },
-      paymentMethod: 'stripe' as PaymentMethod, // ✅ النوع مضبوط
-      itemsPrice: 9.99,
-      shippingPrice: 0,
-      taxPrice: 0,
-      totalPrice: 9.99,
+      paymentMethod: 'stripe' as PaymentMethod,
+      itemsPrice,
+      shippingPrice,
+      taxPrice,
+      totalPrice,
     };
 
     this.orderService.createOrder(sampleOrder).subscribe({
       next: (res: any) => {
-        this.clientSecret = res?.clientSecret || null;
+        this.checkoutSessionId = res?.checkoutSessionId || null;
+        this.checkoutUrl = res?.checkoutUrl || null;
+        if (this.checkoutUrl) {
+          window.location.href = this.checkoutUrl;
+        }
       },
       error: (err: any) => {
         this.error = err?.error?.message || 'Failed to create order';
       },
     });
-  }
-
-  // For demo — simulate Stripe payment success
-  simulatePayment() {
-    this.paid = true;
-    // Optionally: call an API to mark the order as paid if needed
-  }
+  }   
 }

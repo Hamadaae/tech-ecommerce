@@ -21,7 +21,10 @@ export class ProductService {
     limit = 10,
     category?: string,
     search?: string,
-    sort?: string
+    sort?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    stock?: 'in_stock' | 'out_of_stock'
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('page', String(page))
@@ -30,6 +33,9 @@ export class ProductService {
     if (category) params = params.set('category', category);
     if (search && search.trim() !== '') params = params.set('search', search);
     if (sort && sort.trim() !== '') params = params.set('sort', sort);
+    if (minPrice !== undefined && minPrice !== null) params = params.set('minPrice', String(minPrice));
+    if (maxPrice !== undefined && maxPrice !== null) params = params.set('maxPrice', String(maxPrice));
+    if (stock) params = params.set('stock', stock);
 
     return this.http.get<PaginatedProductsResponse>(this.apiUrl, { params });
   }

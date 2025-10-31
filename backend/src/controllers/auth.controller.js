@@ -108,10 +108,11 @@ export const updateUser = async (req, res, next) => {
       err.statusCode = 404;
       return next(err);
     }
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
     user.name = name || user.name;
     user.email = email || user.email;
     user.password = password ? await hashPassword(password) : user.password;
+    user.avatar = avatar !== undefined ? avatar : user.avatar;
     await user.save();
     return res.json(user.toJSON());
   } catch (error) {

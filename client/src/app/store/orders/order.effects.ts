@@ -21,7 +21,8 @@ export class OrderEffects {
           map((res) =>
             OrderActions.createOrderSuccess({
               order: res.order,
-              clientSecret: res.clientSecret,
+              checkoutSessionId: res.checkoutSessionId,
+              checkoutUrl: res.checkoutUrl,
             })
           ),
           catchError((err: any) =>
@@ -89,8 +90,8 @@ export class OrderEffects {
   updateOrderToPaid$ = createEffect(() =>
     this.actions$.pipe(
       ofType(OrderActions.updateOrderToPaid),
-      mergeMap(({ orderId, paymentResult }) =>
-        this.orderService.updateOrderToPaid(orderId, paymentResult).pipe(
+      mergeMap(({ orderId, sessionId }) =>
+        this.orderService.updateOrderToPaid(orderId, sessionId).pipe(
           map((order) => OrderActions.updateOrderToPaidSuccess({ order })),
           catchError((err: any) =>
             of(
