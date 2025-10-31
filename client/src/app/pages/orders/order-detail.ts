@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
         <h3 class="mt-4 font-semibold">Items</h3>
         <ul>
           <li *ngFor="let item of order.orderItems">
-            {{ item.name }} — {{ item.qty }} x {{ item.price }} = {{ item.qty * item.price }}
+            {{ item.name }} — {{ item.quantity }} x {{ item.price }} = {{ (item.quantity * item.price) | number:'1.2-2' }}
           </li>
         </ul>
         <p class="mt-4"><strong>Total:</strong> {{ order.totalPrice }}</p>
@@ -49,6 +49,8 @@ export class OrderDetail implements OnInit {
       this.error = 'No order id provided';
     }
   }
+
+  
 
   loadOrder(id: string) {
     this.loading = true;

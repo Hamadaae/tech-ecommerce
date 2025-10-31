@@ -40,7 +40,6 @@ const productSchema = new mongoose.Schema({
     availabilityStatus : String,
     reviews : [ reviewSchema ],
     returnPolicy : String,
-    minimumOrderQuantity : { type : Number, default : 1 },
     meta : metaSchema,
     images : [ String ],
     thumbnail : String,

@@ -8,7 +8,8 @@ import {
   getMyOrders,
   getOrderById,
   updateOrderStatus,
-  updateOrderToPaid
+  updateOrderToPaid,
+  cancelUnpaidOrder
 } from '../controllers/order.controller.js';
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.post('/', authMiddleware, createOrder);
 router.get('/my', authMiddleware, getMyOrders);         
 router.get('/:id', authMiddleware, getOrderById);       
 router.put('/:id/pay', authMiddleware, updateOrderToPaid); 
+router.delete('/:id/cancel', authMiddleware, cancelUnpaidOrder);
 
 // Admin Routes 
 router.get('/', authMiddleware, adminMiddleware, getAllOrders); 

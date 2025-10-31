@@ -93,9 +93,20 @@ input[type="number"]::-webkit-outer-spin-button {
                         <span class="text-2xl font-extrabold text-indigo-600">${{ cartTotal() | number:'1.2-2' }}</span>
                     </div>
 
+<<<<<<< HEAD
                     <button class="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-indigo-700 transition duration-150">
                         Proceed to Checkout
                     </button>
+=======
+                    <div class="flex flex-col space-y-3 mt-6">
+                        <button (click)="checkoutStripe()" class="w-full py-3 bg-indigo-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-indigo-700 transition duration-150">
+                            Checkout with Stripe
+                        </button>
+                        <button (click)="checkoutCOD()" class="w-full py-3 bg-gray-900 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-gray-800 transition duration-150">
+                            Cash on Delivery
+                        </button>
+                    </div>
+>>>>>>> cd75363 (Payment Stuff)
 
                     <p class="mt-4 text-center text-sm text-gray-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1 text-green-500" viewBox="0 0 20 20" fill="currentColor">
