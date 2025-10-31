@@ -1,0 +1,172 @@
+<!-- Top Bar -->
+<div class="bg-black text-white text-sm flex justify-between items-center px-6 py-2">
+  <div>Mon–Thu: <span class="font-semibold">9:00 AM – 5:30 PM</span></div>
+  <div>
+    Visit our showroom in 1234 Street Address City Address, 1234
+    <a routerLink="/contactus" href="#" class="underline hover:text-gray-300 ml-2">Contact Us</a>
+  </div>
+  <div class="flex items-center gap-3">
+    <span>Call Us: (00) 1234 5678</span>
+    <mat-icon class="text-lg cursor-pointer">facebook</mat-icon>
+    <mat-icon class="text-lg cursor-pointer">instagram</mat-icon>
+  </div>
+</div>
+
+<mat-toolbar class="bg-white border-b border-gray-200 px-8 flex justify-between items-center">
+  <!-- Logo -->
+  <a
+    routerLink="/"
+    class="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+  >
+    <mat-icon class="text-2xl">devices</mat-icon>
+    <span class="text-xl font-bold tracking-tight">TechZone</span>
+  </a>
+
+  <div
+    class="hidden md:flex items-center flex-1 max-w-xl mx-8"
+    *ngIf="(user$ | async)?.role !== 'admin'"
+  >
+    <form (ngSubmit)="onSearch()" class="relative w-full">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        name="search"
+        placeholder="Search products..."
+        class="w-full py-2 pl-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      />
+      <button type="submit" class="absolute right-3 top-2 text-gray-400">
+        <mat-icon>search</mat-icon>
+      </button>
+    </form>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <nav
+      class="flex items-center gap-6 font-medium text-gray-700"
+      *ngIf="(user$ | async)?.role !== 'admin'"
+    >
+      <a
+        routerLink="/products"
+        class="flex items-center gap-2 hover:text-blue-600 transition-colors"
+      >
+        <span class="hidden sm:inline">Shop Now</span>
+      </a>
+      <a
+        routerLink="/contactus"
+        class="flex items-center gap-2 hover:text-blue-600 transition-colors"
+      >
+        <span class="hidden sm:inline">Contact Us</span>
+      </a>
+    </nav>
+
+    <!-- Cart Icon with Counter -->
+    <a
+      routerLink="/cart"
+      class="relative flex items-center"
+      *ngIf="(user$ | async)?.role !== 'admin'"
+    >
+      <mat-icon class="text-gray-700">shopping_cart</mat-icon>
+      <span
+        *ngIf="cartItemCount > 0"
+        class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold w-4 h-4 flex items-center justify-center rounded-full"
+      >
+        {{ cartItemCount }}
+      </span>
+    </a>
+
+    <ng-container *ngIf="!(isLoggedIn$ | async); else userMenu">
+      <a routerLink="/auth/login" class="hover:text-blue-600 transition-colors">Login</a>
+      <a routerLink="/auth/register" class="hover:text-blue-600 transition-colors">Register</a>
+    </ng-container>
+
+    <ng-template #userMenu>
+      <button
+        mat-button
+        [matMenuTriggerFor]="menu"
+        class="flex items-center gap-3 px-2 py-1 rounded-md hover:bg-gray-100 transition-all"
+        *ngIf="user$ | async as user"
+      >
+        <img
+          [src]="user?.avatar || 'assets/icons/user.svg'"
+          alt="User Avatar"
+          class="w-8 h-8 rounded-full object-cover border border-gray-300"
+        />
+        <div class="flex items-center gap-1">
+          <span class="font-medium text-gray-800 truncate max-w-[140px]">
+            {{ user?.name || user?.email }}
+          </span>
+          <mat-icon class="text-gray-600 text-lg">expand_more</mat-icon>
+        </div>
+      </button>
+    </ng-template>
+  </div>
+
+  <!--  Refined Dropdown -->
+  <mat-menu #menu="matMenu" class="!p-0 !rounded-xl !overflow-hidden !shadow-xl">
+    <ng-container *ngIf="(user$ | async)?.role === 'admin'; else normalUserMenu">
+      <button
+        mat-menu-item
+        (click)="logout()"
+        class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
+      >
+        <mat-icon class="text-gray-600">logout</mat-icon>
+        <span class="text-gray-800 font-medium">Sign Out</span>
+      </button>
+    </ng-container>
+
+    <ng-template #normalUserMenu>
+      <div class="w-56 bg-white">
+        <!-- Profile -->
+        <button
+          mat-menu-item
+          routerLink="/profile"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
+        >
+          <mat-icon class="text-blue-600">person</mat-icon>
+          <span class="text-gray-800 font-medium">Profile</span>
+        </button>
+
+        <!-- Orders -->
+        <button
+          mat-menu-item
+          routerLink="/orders"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
+        >
+          <mat-icon class="text-amber-600">receipt_long</mat-icon>
+          <span class="text-gray-800 font-medium">Orders</span>
+        </button>
+
+        <button
+          mat-menu-item
+          routerLink="/wishlist"
+          class="!flex !items-center !justify-between hover:!bg-gray-50 !rounded-none px-4 py-3"
+        >
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-red-600">favorite</mat-icon>
+            <span class="text-gray-800 font-medium">Wishlist</span>
+            <div class="flex items-center justify-center min-w-[22px]">
+              <span
+                *ngIf="wishlistItemCount > 0"
+                class="bg-red-600 text-white text-[11px] font-bold px-2 py-[2px] rounded-full leading-none"
+              >
+                {{ wishlistItemCount }}
+              </span>
+            </div>
+          </div>
+        </button>
+
+        <div class="border-t border-gray-200 my-1"></div>
+
+        <!-- Logout -->
+        <button
+          mat-menu-item
+          (click)="logout()"
+          class="!flex !items-center !gap-3 hover:!bg-gray-50 !rounded-none px-4 py-3"
+        >
+          <mat-icon class="text-gray-600">logout</mat-icon>
+          <span class="text-gray-800 font-medium">Sign Out</span>
+        </button>
+      </div>
+    </ng-template>
+  </mat-menu>
+</mat-toolbar>

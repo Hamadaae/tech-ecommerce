@@ -1,0 +1,115 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root { font-family: 'Inter', sans-serif; }
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+</style>
+
+<div class="min-h-screen bg-gray-50 p-4 sm:p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 tracking-tight border-b pb-4">
+            Shopping Cart
+        </h1>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="lg:w-2/3 bg-white p-6 rounded-xl shadow-lg space-y-4">
+                
+                <div *ngIf="cartItems().length === 0" class="py-12 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p class="mt-4 text-xl font-semibold text-gray-600">Your cart is empty.</p>
+                    <p class="mt-2 text-gray-500">
+                        Looks like you haven't added anything to your cart yet.
+                    </p>
+                    <a [routerLink]="['/products']" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition">
+                        Start Shopping
+                    </a>
+                </div>
+
+                <div *ngFor="let item of cartItems(); trackBy: trackByProductId" class="flex flex-col sm:flex-row items-center border-b last:border-b-0 py-4">
+                    <div class="w-20 h-20 flex-shrink-0">
+                        <img [src]="item.image" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/80x80/6366F1/ffffff?text=Image';" 
+                             alt="{{ item.name }}" 
+                             class="w-full h-full object-cover rounded-lg shadow">
+                    </div>
+
+                    <div class="flex-grow sm:ml-4 mt-3 sm:mt-0 text-center sm:text-left">
+                        <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{{ item.name }}</h3>
+                        <p class="text-sm text-gray-500">Price: ${{ item.price | number:'1.2-2' }}</p>
+                    </div>
+
+                    <div class="flex items-center justify-center sm:justify-start mt-3 sm:mt-0 sm:w-1/4">
+                        <input type="number" 
+                               [ngModel]="item.quantity"
+                               (change)="onQuantityChange(item, $event)"
+                               min="1"
+                               class="w-16 text-center border border-gray-300 rounded-lg p-2 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 shadow-inner">
+                    </div>
+
+                    <div class="flex flex-col items-center sm:items-end mt-3 sm:mt-0 sm:w-1/4">
+                        <p class="text-xl font-bold text-gray-900">${{ item.subTotal | number:'1.2-2' }}</p>
+                        <button (click)="removeItem(item.product)"
+                                class="mt-1 text-red-500 hover:text-red-700 text-sm font-medium transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="cartItems().length > 0" class="pt-4 text-right">
+                    <button (click)="clearCart()" 
+                            class="text-sm text-gray-500 hover:text-gray-700 transition font-medium">
+                        Clear Shopping Cart
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="cartItems().length > 0" class="lg:w-1/3">
+                <div class="bg-white p-6 rounded-xl shadow-lg sticky top-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b">Order Summary</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Subtotal</span>
+                            <span>${{ cartTotal() | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Shipping (Standard)</span>
+                            <span>Free</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-4 mt-4 flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-900">Order Total</span>
+                        <span class="text-2xl font-extrabold text-indigo-600">${{ cartTotal() | number:'1.2-2' }}</span>
+                    </div>
+
+                    <div class="flex flex-col space-y-3 mt-6">
+                        <button (click)="checkoutStripe()" class="w-full py-3 bg-indigo-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-indigo-700 transition duration-150">
+                            Checkout with Stripe
+                        </button>
+                        <button (click)="checkoutCOD()" class="w-full py-3 bg-gray-900 text-white font-semibold text-lg rounded-xl shadow-lg hover:bg-gray-800 transition duration-150">
+                            Cash on Delivery
+                        </button>
+                    </div>
+
+                    <p class="mt-4 text-center text-sm text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Secure Checkout Guaranteed
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
