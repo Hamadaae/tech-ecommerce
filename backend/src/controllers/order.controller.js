@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import { createCheckoutSession , getCheckoutSession } from "../services/payment.js";
+import {
+  createCheckoutSession,
+  getCheckoutSession,
+} from "../services/payment.js";
 import { adjustStock } from "../utils/helpers.js";
 
 export const createOrder = async (req, res, next) => {
@@ -28,7 +31,6 @@ export const createOrder = async (req, res, next) => {
       return next(err);
     }
 
-  
     const productIds = orderItems.map((i) => i.product);
     const products = await Product.find({ _id: { $in: productIds } });
 
@@ -108,34 +110,34 @@ export const createOrder = async (req, res, next) => {
     };
 
     let stockReserved = false;
-    if(paymentMethod.toLowerCase() === "cash_on_delivery") {
+    if (paymentMethod.toLowerCase() === "cash_on_delivery") {
       await adjustStock(newOrderItems, false);
       stockReserved = true;
     }
 
     orderDoc.stockReserved = stockReserved;
 
-    const createdOrder = await Order.create(orderDoc)
+    const createdOrder = await Order.create(orderDoc);
 
-    let checkoutSessionId = null
-    let checkoutUrl = null
+    let checkoutSessionId = null;
+    let checkoutUrl = null;
 
-    if(paymentMethod.toLowerCase() === 'stripe'){
-      const origin = req.get('origin') || (req.protocol + '://' + req.get('host'))
-      const session = await createCheckoutSession(createdOrder, { origin })
-      createdOrder.stripeCheckoutSessionId = session.id
-      await createdOrder.save()
-      checkoutSessionId = session.id
-      checkoutUrl = session.url
+    if (paymentMethod.toLowerCase() === "stripe") {
+      const origin =
+        req.get("origin") || req.protocol + "://" + req.get("host");
+      const session = await createCheckoutSession(createdOrder, { origin });
+      createdOrder.stripeCheckoutSessionId = session.id;
+      await createdOrder.save();
+      checkoutSessionId = session.id;
+      checkoutUrl = session.url;
     }
 
     res.status(201).json({
       message: "Order created successfully",
       order: createdOrder,
       checkoutSessionId,
-      checkoutUrl
+      checkoutUrl,
     });
-
   } catch (error) {
     next(error);
   }
@@ -252,7 +254,6 @@ export const updateOrderStatus = async (req, res, next) => {
   }
 };
 
-
 export const updateOrderToPaid = async (req, res, next) => {
   try {
     if (!req.user || !req.user.id) {
@@ -283,10 +284,18 @@ export const updateOrderToPaid = async (req, res, next) => {
         const sessionId = req.body.sessionId;
         const session = await getCheckoutSession(sessionId);
 
-        console.log("Updating order to paid:", { orderId: order._id.toString(), sessionId, paymentStatus: session?.payment_status });
+        console.log("Updating order to paid:", {
+          orderId: order._id.toString(),
+          sessionId,
+          paymentStatus: session?.payment_status,
+        });
 
         if (!session || session.payment_status !== "paid") {
-          console.error("Session not paid:", { sessionId, paymentStatus: session?.payment_status, sessionExists: !!session });
+          console.error("Session not paid:", {
+            sessionId,
+            paymentStatus: session?.payment_status,
+            sessionExists: !!session,
+          });
           const err = new Error("Checkout Session not paid");
           err.statusCode = 400;
           return next(err);
@@ -294,19 +303,29 @@ export const updateOrderToPaid = async (req, res, next) => {
 
         if (session.metadata && session.metadata.orderId) {
           if (session.metadata.orderId !== order._id.toString()) {
-            const err = new Error("Checkout Session metadata does not match order id");
+            const err = new Error(
+              "Checkout Session metadata does not match order id"
+            );
             err.statusCode = 400;
             return next(err);
           }
         }
 
         const expectedAmount = Math.round(Number(order.totalPrice || 0) * 100);
-        const actualAmount = typeof session.amount_total === "number" ? session.amount_total : 0;
+        const actualAmount =
+          typeof session.amount_total === "number" ? session.amount_total : 0;
         // Allow for small rounding differences (within 2 cents)
         const amountDifference = Math.abs(actualAmount - expectedAmount);
         if (amountDifference > 2) {
-          console.error("Amount mismatch:", { expectedAmount, actualAmount, orderId: order._id.toString(), sessionId });
-          const err = new Error(`Checkout amount does not match order total. Expected: ${expectedAmount}, Got: ${actualAmount}`);
+          console.error("Amount mismatch:", {
+            expectedAmount,
+            actualAmount,
+            orderId: order._id.toString(),
+            sessionId,
+          });
+          const err = new Error(
+            `Checkout amount does not match order total. Expected: ${expectedAmount}, Got: ${actualAmount}`
+          );
           err.statusCode = 400;
           return next(err);
         }
@@ -328,17 +347,25 @@ export const updateOrderToPaid = async (req, res, next) => {
 
         // If payment_intent is expanded, extract charge/receipt
         const paymentIntent = session.payment_intent;
-        if (paymentIntent && paymentIntent.charges && Array.isArray(paymentIntent.charges.data) && paymentIntent.charges.data.length > 0) {
+        if (
+          paymentIntent &&
+          paymentIntent.charges &&
+          Array.isArray(paymentIntent.charges.data) &&
+          paymentIntent.charges.data.length > 0
+        ) {
           const charge = paymentIntent.charges.data[0];
           order.stripeChargeId = charge.id || order.stripeChargeId;
           order.stripeReceiptUrl = charge.receipt_url || order.stripeReceiptUrl;
         }
 
         order.paymentResult = { id: sessionId, status: session.payment_status };
-        
+
         await order.save();
-        console.log("Order marked as paid successfully:", { orderId: order._id.toString(), paymentStatus: order.paymentStatus });
-        
+        console.log("Order marked as paid successfully:", {
+          orderId: order._id.toString(),
+          paymentStatus: order.paymentStatus,
+        });
+
         const updated = await Order.findById(order._id);
         return res.json(updated);
       } catch (err) {
@@ -377,7 +404,6 @@ export const updateOrderToPaid = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const deleteOrder = async (req, res, next) => {
   try {
