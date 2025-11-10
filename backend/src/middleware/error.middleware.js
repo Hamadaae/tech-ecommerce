@@ -8,6 +8,9 @@ export default function errorMiddleware(err, req, res, next) {
         message : err.message || 'Internal Server Error'
     }
 
+    console.log(err)
+    console.trace()
+
     if(err.name === 'ValidationError') {
         const errors = Object.values(err.errors || {}).map(err => err.message);
         return res.status(400).json({
