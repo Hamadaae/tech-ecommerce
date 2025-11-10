@@ -62,8 +62,8 @@ oauthLogin(provider: 'discord' | 'github', code: string): Observable<AuthRespons
     };
 
     const redirectUris = {
-      discord: encodeURIComponent('http://localhost:4200/auth/discord/callback'),
-      github: encodeURIComponent('http://localhost:4200/auth/github/callback'),
+      discord: encodeURIComponent(environment.discordRedirectUri),
+      github: encodeURIComponent(environment.githubRedirectUri),
     };
 
     const scopes = {
