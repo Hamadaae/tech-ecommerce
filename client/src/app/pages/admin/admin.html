@@ -1,4 +1,4 @@
-<!-- <div class="container mx-auto p-6">
+<div class="container mx-auto p-6">
   <h1 class="text-2xl font-bold mb-4">Admin — Orders</h1>
   <div *ngIf="loading">Loading orders...</div>
   <div *ngIf="error" class="text-red-500">{{ error }}</div>
@@ -8,7 +8,7 @@
         <th class="px-4 py-2">ID</th>
         <th class="px-4 py-2">User</th>
         <th class="px-4 py-2">Total</th>
-        <th class="px-4 py-2">Status</th>
+        <th class="px-4 py-2">Delivered</th>
         <th class="px-4 py-2">Payment</th>
         <th class="px-4 py-2">Actions</th>
       </tr>
@@ -19,17 +19,44 @@
         <td class="px-4 py-2">{{ o.user?.email || o.user?.name }}</td>
         <td class="px-4 py-2">{{ o.totalPrice }}</td>
         <td class="px-4 py-2">
-          <select [value]="o.status" (change)="onStatusChange(o._id, $event)"
->
-            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
-          </select>
+          <label class="inline-flex items-center">
+            <input type="checkbox" [checked]="o.isDelivered" (change)="onStatusChange(o._id, $event)" />
+            <span class="ml-2">{{ o.isDelivered ? 'Yes' : 'No' }}</span>
+          </label>
         </td>
         <td class="px-4 py-2">{{ o.paymentStatus }}</td>
-        <td class="px-4 py-2">
+        <td class="px-4 py-2 space-x-2">
+          <button (click)="markOrderPaid(o._id)" class="px-2 py-1 rounded bg-green-600 text-white">Mark Paid</button>
           <button (click)="deleteOrder(o._id)" class="px-2 py-1 rounded bg-red-500 text-white">Delete</button>
         </td>
       </tr>
     </tbody>
   </table>
   <div *ngIf="orders.length === 0 && !loading">No orders found.</div>
-</div> -->
+</div>
+
+<div class="container mx-auto p-6 mt-8">
+  <h2 class="text-xl font-bold mb-4">Products</h2>
+  <form (ngSubmit)="addProduct()" class="mb-4 grid grid-cols-2 gap-2">
+    <input [(ngModel)]="newProduct.title" name="title" placeholder="Title" class="p-2 border" required />
+    <input [(ngModel)]="newProduct.price" name="price" type="number" placeholder="Price" class="p-2 border" required />
+    <input [(ngModel)]="newProduct.stock" name="stock" type="number" placeholder="Stock" class="p-2 border" />
+    <input [(ngModel)]="newProduct.category" name="category" placeholder="Category" class="p-2 border" required />
+    <input [(ngModel)]="newProduct.description" name="description" placeholder="Description"
+      class="p-2 border col-span-2" />
+    <button type="submit" class="px-3 py-2 rounded bg-blue-600 text-white col-span-2">Add Product</button>
+  </form>
+
+  <div *ngIf="products.length === 0">No products found.</div>
+  <ul *ngIf="products.length > 0" class="space-y-2">
+    <li *ngFor="let p of products" class="flex items-center justify-between p-2 border rounded">
+      <div>
+        <div class="font-bold">{{ p.title || p.name || p._id }}</div>
+        <div class="text-sm">Price: {{ p.price }} — Stock: {{ p.stock }}</div>
+      </div>
+      <div class="space-x-2">
+        <button (click)="deleteProduct(p._id)" class="px-2 py-1 rounded bg-red-500 text-white">Delete</button>
+      </div>
+    </li>
+  </ul>
+</div>

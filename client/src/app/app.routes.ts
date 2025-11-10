@@ -32,16 +32,20 @@ export const routes: Routes = [
       },
       {
         path: 'success',
-        loadComponent: () => import('./pages/checkout/checkout-success').then((m) => m.CheckoutSuccess),
+        loadComponent: () =>
+          import('./pages/checkout/checkout-success').then((m) => m.CheckoutSuccess),
       },
       {
         path: 'cancel',
-        loadComponent: () => import('./pages/checkout/checkout-cancel').then((m) => m.CheckoutCancel),
+        loadComponent: () =>
+          import('./pages/checkout/checkout-cancel').then((m) => m.CheckoutCancel),
       },
       {
-        path: '', redirectTo: 'pay', pathMatch: 'full'
-      }
-    ]
+        path: '',
+        redirectTo: 'pay',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
     path: 'wishlist',
@@ -98,11 +102,11 @@ export const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },
-  // {
-  //   path: 'admin',
-  //   loadChildren: () => import('./pages/admin/admin').then((m) => m.Admin),
-  //   canActivate: [isAppReadyGuard, AuthGuard],
-  // },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
+    canActivate: [isAppReadyGuard, AuthGuard],
+  },
   {
     path: '**',
     redirectTo: '',

@@ -19,10 +19,16 @@ export class OrderService {
     });
   }
 
-  createOrder(orderData: Partial<Order>): Observable<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }> {
-    return this.http.post<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }>(this.apiUrl, orderData, {
-      headers: this.getAuthHeaders(),
-    });
+  createOrder(
+    orderData: Partial<Order>
+  ): Observable<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }> {
+    return this.http.post<{ order: Order; checkoutSessionId?: string; checkoutUrl?: string }>(
+      this.apiUrl,
+      orderData,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
   }
 
   getMyOrders(): Observable<Order[]> {
@@ -37,12 +43,11 @@ export class OrderService {
     });
   }
 
-  updateOrderToPaid(orderId: string, sessionId: string): Observable<Order> {
-    return this.http.put<Order>(
-      `${this.apiUrl}/${orderId}/pay`,
-      { sessionId },
-      { headers: this.getAuthHeaders() }
-    );
+  updateOrderToPaid(orderId: string, sessionId?: string | null): Observable<Order> {
+    const body = typeof sessionId !== 'undefined' && sessionId !== null ? { sessionId } : {};
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/pay`, body, {
+      headers: this.getAuthHeaders(),
+    });
   }
 
   getAllOrders(): Observable<{ data: Order[]; meta: any }> {

@@ -16,6 +16,11 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return { headers: { Authorization: token ? `Bearer ${token}` : '' } };
+  }
+
   getProducts(
     page = 1,
     limit = 10,
@@ -26,15 +31,15 @@ export class ProductService {
     maxPrice?: number,
     stock?: 'in_stock' | 'out_of_stock'
   ): Observable<PaginatedProductsResponse> {
-    let params = new HttpParams()
-      .set('page', String(page))
-      .set('limit', String(limit));
+    let params = new HttpParams().set('page', String(page)).set('limit', String(limit));
 
     if (category) params = params.set('category', category);
     if (search && search.trim() !== '') params = params.set('search', search);
     if (sort && sort.trim() !== '') params = params.set('sort', sort);
-    if (minPrice !== undefined && minPrice !== null) params = params.set('minPrice', String(minPrice));
-    if (maxPrice !== undefined && maxPrice !== null) params = params.set('maxPrice', String(maxPrice));
+    if (minPrice !== undefined && minPrice !== null)
+      params = params.set('minPrice', String(minPrice));
+    if (maxPrice !== undefined && maxPrice !== null)
+      params = params.set('maxPrice', String(maxPrice));
     if (stock) params = params.set('stock', stock);
 
     return this.http.get<PaginatedProductsResponse>(this.apiUrl, { params });
@@ -49,14 +54,14 @@ export class ProductService {
   }
 
   createProduct(product: any) {
-    return this.http.post<any>(this.apiUrl, product);
+    return this.http.post<any>(this.apiUrl, product, this.getAuthHeaders());
   }
 
   updateProduct(id: string, product: any) {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, product);
+    return this.http.put<any>(`${this.apiUrl}/${id}`, product, this.getAuthHeaders());
   }
 
   deleteProduct(id: string) {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, this.getAuthHeaders());
   }
 }
