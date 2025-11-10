@@ -16,6 +16,7 @@ export const getProducts = async (req, res, next) => {
       maxPrice,
       stock,
     } = req.query;
+    console.log("hello world")
 
     const numericPage = Math.max(1, parseInt(page, 10) || 1);
     const numericLimit = Math.max(1, parseInt(limit, 10) || 10);
